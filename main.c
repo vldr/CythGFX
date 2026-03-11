@@ -54,7 +54,7 @@ static void circle(int x, int y, int radius) {
   DrawCircle(x, y, radius, fill_color);
 }
 
-static ImageTex* create_image(int width, int height) {
+static ImageTex* createImage(int width, int height) {
   ImageTex* image_texture = cyth_alloc(false, sizeof(ImageTex));
   image_texture->id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8, 1);
   image_texture->width = width;
@@ -69,7 +69,7 @@ static ImageTex* create_image(int width, int height) {
   return image_texture;
 }
 
-static void clear_image(ImageTex* image_texture) {
+static void clearImage(ImageTex* image_texture) {
   if (!image_texture->bitmap)
     return;
 
@@ -84,7 +84,7 @@ static void clear_image(ImageTex* image_texture) {
   }
 }
 
-static void draw_image(ImageTex* image_texture, int x, int y) {
+static void drawImage(ImageTex* image_texture, int x, int y) {
   if (!image_texture->bitmap)
     return;
 
@@ -103,7 +103,7 @@ static void draw_image(ImageTex* image_texture, int x, int y) {
   DrawTexture(texture, x, y, (Color){255,255,255,255});
 }
 
-static void draw_text(CyString* text, int x, int y, int fontSize) {
+static void drawText(CyString* text, int x, int y, int fontSize) {
   DrawText(text->data, x, y, fontSize, fill_color);
 }
 
@@ -134,10 +134,10 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "void fill(int r, int g, int b)", (uintptr_t)fill);
   cyth_load_function(vm, "void rect(int x, int y, int width, int height)", (uintptr_t)rect);
   cyth_load_function(vm, "void circle(int x, int y, int radius)", (uintptr_t)circle);
-  cyth_load_function(vm, "Image createImage(int width, int height)", (uintptr_t)create_image);
-  cyth_load_function(vm, "void clearImage(Image image)", (uintptr_t)clear_image);
-  cyth_load_function(vm, "void drawImage(Image image, int x, int y)", (uintptr_t)draw_image);
-  cyth_load_function(vm, "void drawText(string text, int x, int y, int fontSize)", (uintptr_t)draw_text);
+  cyth_load_function(vm, "Image createImage(int width, int height)", (uintptr_t)createImage);
+  cyth_load_function(vm, "void clearImage(Image image)", (uintptr_t)clearImage);
+  cyth_load_function(vm, "void drawImage(Image image, int x, int y)", (uintptr_t)drawImage);
+  cyth_load_function(vm, "void drawText(string text, int x, int y, int fontSize)", (uintptr_t)drawText);
   cyth_load_function(vm, "float cos(float a)", (uintptr_t)cosf);
   cyth_load_function(vm, "float sin(float a)", (uintptr_t)sinf);
   cyth_load_function(vm, "float tan(float a)", (uintptr_t)tanf);
@@ -150,19 +150,21 @@ int main(int argc, char **argv) {
   cyth_run(vm);
 
   DrawFunc draw = (DrawFunc) cyth_get_function(vm, "draw.void(int)");
-  KeyFunc key_pressed = (KeyFunc) cyth_get_function(vm, "keyPressed.void(char)");
+  KeyFunc keyPressed = (KeyFunc) cyth_get_function(vm, "keyPressed.void(char)");
 
-  while (draw && !WindowShouldClose()) {
-    if (key_pressed) {
-      char key = GetKeyPressed();
-      if (key)
-        key_pressed(key);
+  cyth_try_catch(vm, {
+    while (draw && !WindowShouldClose()) {
+      if (keyPressed) {
+        char key = GetKeyPressed();
+        if (key)
+          keyPressed(key);
+      }
+
+      BeginDrawing();
+      draw(GetTime() * 1000);
+      EndDrawing();
     }
-
-    BeginDrawing();
-    draw(GetTime() * 1000);
-    EndDrawing();
-  }
+  });
 
   cyth_destroy(vm);
   return 0;

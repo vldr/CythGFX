@@ -16,7 +16,7 @@ Vector3D MATERIAL = Vector3D(0.1, 0.8, 0.8)
 
 int KEY_LIGHTING = 76 
 int KEY_NORMALS = 78 
-int KEY_OUTLINE = 79 
+int KEY_OUTLINE = 79
 int KEY_ROTATE = 82 
 int KEY_SHADING = 83
 
