@@ -99,7 +99,7 @@ static int createImage(int width, int height) {
 }
 
 static void clearImage(Img* image) {
-  if (!image->data)
+  if (!image || !image->data)
     return;
 
   if (image->data->size != image->width * image->height * 3)
@@ -114,7 +114,7 @@ static void clearImage(Img* image) {
 }
 
 static void image(Img* image, int x, int y) {
-  if (!image->data)
+  if (!image || !image->data)
     return;
 
   if (image->data->size != image->width * image->height * 3)
