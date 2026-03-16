@@ -1,9 +1,7 @@
-Game game = Game(25, 25, 500, 500)
-
-void keyPressed(char key)
-  game.input(key)
+Game game = Game(25, 25, 800, 800)
 
 void draw(int time)
+  game.input()
   game.update(time)
   game.draw()
 
@@ -32,7 +30,7 @@ class Game
     this.snake = Snake(width / 2 * resolution.x, (height - 1) * resolution.y)
     this.apple = Apple(width / 2 * resolution.x, height / 2 * resolution.y)
 
-    size(windowWidth, windowHeight)
+    size("Snake", windowWidth, windowHeight)
 
   void update(int time)
     delta += (float)(time - lastTime) / tickLength
@@ -60,25 +58,20 @@ class Game
     apple.draw()
     snake.draw()
 
-  void input(char key)
+  void input()
     if snake.dead
       return
 
-    char up = (char)38
-    char down = (char)40
-    char left = (char)37
-    char right = (char)39
-
-    if key == up and (snake.body.length == 1 or snake.body[0].y <= snake.body[1].y)
+    if isKeyDown(KEY_UP) and (snake.body.length == 1 or snake.body[0].y <= snake.body[1].y)
       snake.direction.x = 0
       snake.direction.y = -1
-    else if key == down and (snake.body.length == 1 or snake.body[0].y >= snake.body[1].y)
+    else if isKeyDown(KEY_DOWN) and (snake.body.length == 1 or snake.body[0].y >= snake.body[1].y)
       snake.direction.x = 0
       snake.direction.y = 1
-    else if key == left and (snake.body.length == 1 or snake.body[0].x <= snake.body[1].x)
+    else if isKeyDown(KEY_LEFT) and (snake.body.length == 1 or snake.body[0].x <= snake.body[1].x)
       snake.direction.x = -1
       snake.direction.y = 0
-    else if key == right and (snake.body.length == 1 or snake.body[0].x >= snake.body[1].x)
+    else if isKeyDown(KEY_RIGHT) and (snake.body.length == 1 or snake.body[0].x >= snake.body[1].x)
       snake.direction.x = 1
       snake.direction.y = 0
 
@@ -215,8 +208,8 @@ class Apple
 
   void update()
     if position == game.snake.body[0]
-      int randomX = (int)((game.width - 1) * random()) * game.resolution.x
-      int randomY = (int)((game.height - 1) * random()) * game.resolution.y
+      int randomX = getRandomValue(0, game.width - 1) * game.resolution.x
+      int randomY = getRandomValue(0, game.height - 1) * game.resolution.y
       
       position.x = randomX
       position.y = randomY

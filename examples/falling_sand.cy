@@ -9,19 +9,14 @@ cells.reserve(width, height)
 int value
 int hue
 
-initWindow(windowWidth, windowHeight, "Falling Sand")
+size("Falling Sand", windowWidth, windowHeight)
 
 bool hasInteracted
-string text = "Click and hold to place sand"
-Vector2 fontMetrics = measureTextEx(getFontDefault(), text, 18, 1)
+string hint = "Click and hold to place sand"
+Size fontSize = textSize(hint, 18)
 
-while not windowShouldClose()
-    beginDrawing()
-
-    if not hasInteracted
-      drawText(text, (int)(windowWidth - 1 - fontMetrics.x) / 2 , (int)(windowHeight - 1 - fontMetrics.y) / 2, 18, Color(255, 255, 255, 255))
-
-    if isMouseButtonDown(0)
+void draw(int time)
+    if isMouseButtonDown(MOUSE_BUTTON_LEFT)
         int x = getMouseX()                                  
         int y = getMouseY()
 
@@ -39,16 +34,16 @@ while not windowShouldClose()
         addCell((int)cellX + 1, (int)cellY)
         addCell((int)cellX, (int)cellY - 1)
         addCell((int)cellX, (int)cellY + 1)
-
     
-    clearBackground(Color(0,0,0,0))
+    if not hasInteracted
+      fill(255, 255, 255)
+      text(hint, (windowWidth - 1 - fontSize.width) / 2, (windowHeight - 1 - fontSize.height) / 2, 18)
+      return
+ 
+    fill(0, 0, 0)
+    clear()
     render()
     nextGeneration()
-
-    endDrawing()
-
-closeWindow()
-
 
 void addCell(int x, int y)
   if x >= width or y >= height or x < 0 or y < 0
@@ -130,15 +125,13 @@ void render()
 
   for int x = 0; x < width; x += 1
     for int y = 0; y < height; y += 1
-      Color color
-
       if cells[x][y]
         int[] rgb = hsvToRgb(cells[x][y] / (float)windowWidth, 1.0, 1.0)
-        color = Color(rgb[0], rgb[1], rgb[2], 255)
+        fill(rgb[0], rgb[1], rgb[2])
       else
-        color = Color(0, 0, 0, 0)
+        fill(0, 0, 0)
       
       int cx = windowWidth / width
       int cy = windowHeight / height
 
-      drawRectangle(x * cx, y * cy, windowWidth/width, windowHeight/height, color)
+      rect(x * cx, y * cy, windowWidth / width, windowHeight / height)

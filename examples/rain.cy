@@ -89,10 +89,10 @@ void addRainRipple(int x, float strength)
     ripple.strength = strength
     ripple.spreadSpeed = 100.0
 
-initWindow(1024, 600, "Rain")
+int screenWidth = 1024
+int screenHeight = 600
 
-int screenWidth = getScreenWidth()
-int screenHeight = getScreenHeight()
+size("Rain", screenWidth, screenHeight)
 
 RainDrop[] raindrops
 raindrops.reserve(RAINDROP_COUNT)
@@ -107,7 +107,7 @@ for int i = 0; i < ripples.length; i += 1
 
 float time
 
-while not windowShouldClose()
+void draw(int _)
     float deltaTime = getFrameTime()
     time += deltaTime
 
@@ -126,21 +126,21 @@ while not windowShouldClose()
             raindrop.__init__()
 
 
-    beginDrawing()
-    clearBackground(Color(8, 24, 48, 255))
+    fill(8, 24, 48)
+    clear()
 
     for RainDrop raindrop in raindrops
-        drawLine((int)raindrop.x, (int)raindrop.y, (int)raindrop.x, (int)raindrop.y - (int)raindrop.length, Color(180, 220, 255, 170))
+        stroke(180, 220, 255, 170)
+        line((int)raindrop.x, (int)raindrop.y, (int)raindrop.x, (int)raindrop.y - (int)raindrop.length)
     
     int previousY = getWaterY(0, time)
     for int x = 1; x < screenWidth; x += 1
         int y = getWaterY(x, time)
 
-        drawLine(x - 1, previousY, x, y, Color(64, 196, 255, 255))
-        drawLine(x, y, x, screenHeight, Color(18, 86, 140, 255))
+        stroke(64, 196, 255)
+        line(x - 1, previousY, x, y)
+
+        stroke(18, 86, 140)
+        line(x, y, x, screenHeight)
 
         previousY = y
-
-    endDrawing()
-
-closeWindow()
