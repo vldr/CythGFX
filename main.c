@@ -23,12 +23,12 @@ typedef void(*DrawFunc)(int);
 Color fill_color;
 Color stroke_color;
 
-static void print(CyString *string) {
+static void print(CyString* string) {
   fwrite(string->data, 1, string->size, stdout);
   fflush(stdout);
 }
 
-static void println(CyString*string) {
+static void println(CyString* string) {
   fwrite(string->data, 1, string->size, stdout);
   fwrite("\n", 1, 1, stdout);
 }
@@ -99,7 +99,7 @@ static int createImage(int width, int height) {
 }
 
 static void clearImage(Img* image) {
-  if (!image || !image->data)
+  if (!image)
     return;
 
   if (image->data->size != image->width * image->height * 3)
@@ -114,7 +114,7 @@ static void clearImage(Img* image) {
 }
 
 static void image(Img* image, int x, int y) {
-  if (!image || !image->data)
+  if (!image)
     return;
 
   if (image->data->size != image->width * image->height * 3)
@@ -133,11 +133,6 @@ static void image(Img* image, int x, int y) {
 }
 
 int main(int argc, char **argv) {
-  if (argc < 2) {
-    printf("error: provide a source file to run\n");
-    return -1;
-  }
-
   SetConfigFlags(FLAG_VSYNC_HINT);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetTraceLogLevel(LOG_ERROR); 
@@ -183,19 +178,19 @@ int main(int argc, char **argv) {
     "  int width\n"
     "  int height\n"
     "  char[] data\n"
-    ""
+
     "  void __init__(int width, int height)\n"
     "    this.id = createImage(width, height)\n"
     "    this.width = width\n"
     "    this.height = height\n"
     "    this.data.reserve(width * height * 3)\n"
-    ""
+
     "  void clear()\n"
     "    clearImage(this)\n"
-    ""
+
     "  void draw()\n"
     "    image(this, 0, 0)\n"
-    ""
+
     "  void draw(int x, int y)\n"
     "    image(this, x, y)\n"
 
@@ -322,8 +317,15 @@ int main(int argc, char **argv) {
     "int MOUSE_BUTTON_FORWARD = 5\n"
     "int MOUSE_BUTTON_BACK    = 6\n");
 
+  if (argc < 2) {
+    printf("error: provide a path to the source file to run\n");
+
+    cyth_destroy(vm);
+    return -1;
+  }
+
   if (!cyth_load_file(vm, argv[1])) {
-    printf("error: failed to load text file\n");
+    printf("error: failed to load source file: %s\n", argv[1]);
 
     cyth_destroy(vm);
     return -1;
