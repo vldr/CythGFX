@@ -123,7 +123,7 @@ void draw(int _)
 
         if raindrop.y >= getWaterY((int)raindrop.x, time)
             addRainRipple((int)raindrop.x, clamp(raindrop.speed / 75, 8, 16))
-            raindrop.__init__()
+            raindrop.reset()
 
 
     fill(8, 24, 48)

@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "float pow(float a, float b)", (uintptr_t)powf);
   cyth_load_function(vm, "void print(string a)", (uintptr_t)print);
   cyth_load_function(vm, "void println(string a)", (uintptr_t)println);
-  cyth_load_string(vm,
+  cyth_load_string(vm, "<builtin>",
     "class Image\n"
     "  int id\n"
     "  int width\n"

@@ -1,4 +1,4 @@
-Game game = Game(25, 25, 800, 800)
+Game game = Game(25, 25, 500, 500)
 
 void draw(int time)
   game.input()

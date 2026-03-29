@@ -54,7 +54,7 @@ struct _CY_VM
 
   ArrayStmt statements;
   MapS64 typeids;
-  MapMIR_item string_constants;
+  MapStrbufMIR_item string_constants;
   MapMIR_item items;
   MapFunction functions;
 
@@ -71,8 +71,8 @@ struct _CY_VM
   Function string_char_cast;
 
   int logging;
-  void (*error_callback)(int start_line, int start_column, int end_line, int end_column,
-                         const char* message);
+  void (*error_callback)(const char* filename, int start_line, int start_column, int end_line,
+                         int end_column, const char* message);
   void (*panic_callback)(const char* function, int line, int column);
 };
 
@@ -199,11 +199,11 @@ static void panic_callback(const char* function, int line, int column)
   previous_column = column;
 }
 
-static void error_callback(int start_line, int start_column, int end_line, int end_column,
-                           const char* message)
+static void error_callback(const char* filename, int start_line, int start_column, int end_line,
+                           int end_column, const char* message)
 {
-  fprintf(stderr, "%d:%d-%d:%d: error: %s\n", start_line, start_column, end_line, end_column,
-          message);
+  fprintf(stderr, "%s%s%d:%d-%d:%d: error: %s\n", filename ? filename : "", filename ? ":" : "",
+          start_line, start_column, end_line, end_column, message);
 }
 
 static int string_equals(CyString* left, CyString* right)
@@ -478,27 +478,32 @@ static void generate_realloc_expression(CyVM* vm, MIR_op_t dest, MIR_op_t ptr, M
 static void generate_string_literal_expression(CyVM* vm, MIR_op_t dest, const char* literal,
                                                int length)
 {
-  MIR_item_t item = map_get_mir_item(&vm->string_constants, literal);
-  if (!item)
-  {
-    if (length == -1)
-      length = strlen(literal);
+  if (length == -1)
+    length = strlen(literal);
 
+  Strbuf key = { .data = literal, .length = length };
+  MIR_item_t value = map_get_strbuf_mir_item(&vm->string_constants, &key);
+
+  if (!value)
+  {
     uintptr_t size = sizeof(CyString) + length + 1;
     CyString* string = memory_alloc(size);
     string->size = length;
     string->data[length] = '\0';
     memcpy(string->data, literal, length);
 
-    const char* name = memory_sprintf("string.%d", map_size_mir_item(&vm->string_constants));
-    item = MIR_new_data(vm->ctx, name, MIR_T_U8, size, string);
+    const char* name = memory_sprintf("string.%d", map_size_strbuf_mir_item(&vm->string_constants));
+    value = MIR_new_data(vm->ctx, name, MIR_T_U8, size, string);
 
-    map_put_mir_item(&vm->string_constants, literal, item);
+    Strbuf* key = ALLOC(Strbuf);
+    key->data = literal;
+    key->length = length;
+    map_put_strbuf_mir_item(&vm->string_constants, key, value);
   }
 
   MIR_append_insn(vm->ctx, vm->function,
                   MIR_new_insn(vm->ctx, data_type_to_mov_type(DATA_TYPE(TYPE_STRING)), dest,
-                               MIR_new_ref_op(vm->ctx, item)));
+                               MIR_new_ref_op(vm->ctx, value)));
 }
 
 static void generate_panic(CyVM* vm, const char* what, Token token)
@@ -836,7 +841,7 @@ static Function* generate_array_pop_function(CyVM* vm, DataType data_type)
 
       MIR_append_insn(vm->ctx, vm->function, panic_label);
 
-      generate_panic(vm, "Out of bounds access", (Token){ 0 });
+      generate_panic(vm, "Out of bounds access", TOKEN_EMPTY());
 
       MIR_append_insn(vm->ctx, vm->function, finish_label);
     }
@@ -1131,7 +1136,7 @@ static Function* generate_array_reserve_function(CyVM* vm, DataType data_type)
 
       MIR_append_insn(vm->ctx, vm->function, panic_label);
 
-      generate_panic(vm, "Invalid reservation amount", (Token){ 0 });
+      generate_panic(vm, "Invalid reservation amount", TOKEN_EMPTY());
 
       MIR_append_insn(vm->ctx, vm->function, continue_label);
     }
@@ -4975,7 +4980,7 @@ CyVM* cyth_init(void)
   vm->string_char_cast.func = MIR_new_import(vm->ctx, "string.char_cast");
 
   map_init_function(&vm->functions, 0, 0);
-  map_init_mir_item(&vm->string_constants, 0, 0);
+  map_init_strbuf_mir_item(&vm->string_constants, 0, 0);
   map_init_mir_item(&vm->items, 0, 0);
   map_init_s64(&vm->typeids, 0, 0);
 
@@ -5060,9 +5065,9 @@ void cyth_destroy(CyVM* vm)
   free(vm);
 }
 
-void cyth_set_error_callback(CyVM* vm,
-                             void (*error_callback)(int start_line, int start_column, int end_line,
-                                                    int end_column, const char* message))
+void cyth_set_error_callback(CyVM* vm, void (*error_callback)(const char* filename, int start_line,
+                                                              int start_column, int end_line,
+                                                              int end_column, const char* message))
 {
   vm->error_callback = error_callback;
 }
@@ -5080,7 +5085,7 @@ void cyth_set_logging(CyVM* vm, int logging)
 
 int cyth_load_function(CyVM* vm, const char* signature, uintptr_t func)
 {
-  lexer_init((char*)signature, vm->error_callback);
+  lexer_init(signature, signature, vm->error_callback);
   ArrayToken tokens = lexer_scan();
 
   if (lexer_errors())
@@ -5096,9 +5101,9 @@ int cyth_load_function(CyVM* vm, const char* signature, uintptr_t func)
   return true;
 }
 
-int cyth_load_string(CyVM* vm, char* string)
+int cyth_load_string(CyVM* vm, const char* filename, const char* string)
 {
-  lexer_init(string, vm->error_callback);
+  lexer_init(filename, string, vm->error_callback);
   ArrayToken tokens = lexer_scan();
 
   if (lexer_errors())
@@ -5144,7 +5149,7 @@ int cyth_load_file(CyVM* vm, const char* filename)
     goto clean_up_file;
 
   string[size] = '\0';
-  result = cyth_load_string(vm, string);
+  result = cyth_load_string(vm, filename, string);
 
 clean_up_file:
   fclose(file);
