@@ -101,7 +101,7 @@ static void panic(CyVM* vm, const char* what, uintptr_t pc, uintptr_t fp)
       continue;
 
     const uintptr_t base = (uintptr_t)item->u.func->machine_code;
-    if (pc < base && pc >= base + item->u.func->length)
+    if (pc < base || pc >= base + item->u.func->length)
       continue;
 
     uintptr_t offset = 0;
@@ -155,7 +155,7 @@ static void panic(CyVM* vm, const char* what, uintptr_t pc, uintptr_t fp)
         continue;
 
       const uintptr_t base = (uintptr_t)item->u.func->machine_code;
-      if (pc < base && pc >= base + item->u.func->length)
+      if (pc < base || pc >= base + item->u.func->length)
         continue;
 
       uintptr_t offset = 0;
@@ -5389,11 +5389,11 @@ CySetJMP cyth_setjmp(void)
   static CySetJMP setjmp = NULL;
   if (!setjmp)
   {
-    setjmp = VirtualAlloc(NULL, sizeof(buffer), MEM_COMMIT, PAGE_READWRITE);
-    memcpy(setjmp, buffer, sizeof(buffer));
+    setjmp = (CySetJMP)(uintptr_t)VirtualAlloc(NULL, sizeof(buffer), MEM_COMMIT, PAGE_READWRITE);
+    memcpy((void*)(uintptr_t)setjmp, buffer, sizeof(buffer));
 
     DWORD old_protect;
-    VirtualProtect(setjmp, sizeof(buffer), PAGE_EXECUTE_READ, &old_protect);
+    VirtualProtect((void*)(uintptr_t)setjmp, sizeof(buffer), PAGE_EXECUTE_READ, &old_protect);
   }
 #endif
 
@@ -5453,11 +5453,11 @@ CyLongJMP cyth_longjmp(void)
   static CyLongJMP longjmp = NULL;
   if (!longjmp)
   {
-    longjmp = VirtualAlloc(NULL, sizeof(buffer), MEM_COMMIT, PAGE_READWRITE);
-    memcpy(longjmp, buffer, sizeof(buffer));
+    longjmp = (CyLongJMP)(uintptr_t)VirtualAlloc(NULL, sizeof(buffer), MEM_COMMIT, PAGE_READWRITE);
+    memcpy((void*)(uintptr_t)longjmp, buffer, sizeof(buffer));
 
     DWORD old_protect;
-    VirtualProtect(longjmp, sizeof(buffer), PAGE_EXECUTE_READ, &old_protect);
+    VirtualProtect((void*)(uintptr_t)longjmp, sizeof(buffer), PAGE_EXECUTE_READ, &old_protect);
   }
 #endif
 
@@ -5489,7 +5489,7 @@ void* cyth_push_jmp(CyVM* vm, void* new)
     sa.sa_sigaction = signal_handler;
     sigaction(SIGFPE, &sa, NULL);
 #else
-    ULONG size = 1024 * 1024;
+    ULONG size = 64 * 1024;
     SetThreadStackGuarantee(&size);
 
     handler = AddVectoredExceptionHandler(1, vector_handler);
