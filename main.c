@@ -81,6 +81,10 @@ static void line(int x0, int y0, int x1, int y1) {
   DrawLine(x0, y0, x1, y1, stroke_color);
 }
 
+static void triangle(int x0, int y0, int x1, int y1, int x2, int y2) {
+  DrawTriangle((Vector2){x0, y0}, (Vector2){x1, y1}, (Vector2){x2, y2}, fill_color);
+}
+
 static void text(CyString* text, int x, int y, int fontSize) {
   DrawText(text->data, x, y, fontSize, fill_color);
 }
@@ -147,6 +151,7 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "void rect(int x, int y, int width, int height)", (uintptr_t)rect);
   cyth_load_function(vm, "void circle(int x, int y, int radius)", (uintptr_t)circle);
   cyth_load_function(vm, "void line(int x0, int y0, int x1, int y1)", (uintptr_t)line);
+  cyth_load_function(vm, "void triangle(int x0, int y0, int x1, int y1, int x2, int y2)", (uintptr_t)triangle);
   cyth_load_function(vm, "void image(Image image, int x, int y)", (uintptr_t)image);
   cyth_load_function(vm, "int createImage(int width, int height)", (uintptr_t)createImage);
   cyth_load_function(vm, "void clearImage(Image image)", (uintptr_t)clearImage);
@@ -164,6 +169,7 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "int getMouseX()", (uintptr_t)GetMouseX);
   cyth_load_function(vm, "int getMouseY()", (uintptr_t)GetMouseY);
   cyth_load_function(vm, "int getRandomValue(int min, int max)", (uintptr_t)GetRandomValue);
+  cyth_load_function(vm, "float atan2(float y, float x)", (uintptr_t)atan2f);
   cyth_load_function(vm, "float cos(float a)", (uintptr_t)cosf);
   cyth_load_function(vm, "float sin(float a)", (uintptr_t)sinf);
   cyth_load_function(vm, "float tan(float a)", (uintptr_t)tanf);

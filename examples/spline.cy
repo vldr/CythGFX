@@ -1,33 +1,40 @@
 Vector4[] controlPoints = [
-  Vector4(-0.367188, 0.484375, 0.000000, 1.000000),
-  Vector4(-0.335938, 0.878906, 0.000000, 1.000000),
-  Vector4(0.191406, 0.890625, 0.000000, 1.000000),
+  Vector4(-0.403188, 0.460375, 0, 1),
+  Vector4(-0.351938, 0.914906, 0, 1),
+  Vector4(0.335406, 0.926624, 0, 1),
 
-  Vector4(0.253906, 0.496094, 0.000000, 1.000000),
-  Vector4(0.765625, 0.484375, 0.000000, 1.000000),
-  Vector4(0.800781, -0.117188, 0.000000, 1.000000),
+  Vector4(0.353906, 0.480094, 0, 1),
+  Vector4(0.889625, 0.440375, 0, 1),
+  Vector4(0.912781, -0.297188, 0, 1),
 
-  Vector4(0.328125, -0.191406, 0.000000, 1.000000),
-  Vector4(0.296875, -0.800781, 0.000000, 1.000000),
-  Vector4(-0.292969, -0.808594, 0.000000, 1.000000),
+  Vector4(0.332125, -0.355406, 0, 1),
+  Vector4(0.328875, -0.840781, 0, 1),
+  Vector4(-0.400969, -0.836594, 0, 1),
 
-  Vector4(-0.343750, -0.218750, 0.000000, 1.000000),
-  Vector4(-0.832031, -0.164062, 0.000000, 1.000000),
-  Vector4(-0.851562, 0.398438, 0.000000, 1.000000)
+  Vector4(-0.41175, -0.34675, 0, 1),
+  Vector4(-0.888031, -0.332062, 0, 1),
+  Vector4(-0.919562, 0.470438, 0, 1),
 ]
 
 Vector4 selectedControlPoint
+Vector2 dragOffset
 
 int WIDTH = 500
 int HEIGHT = 500
 int SPLINE_SUBDIVISIONS = 100
+float PI = 3.14159265359
 float SQUARE_SIZE = 0.01625
 
-int BEZIER = 0
-int CATMULL_ROM = 1
-int BSPLINE = 2
+int SPLINE_BEZIER = 0
+int SPLINE_CATMULL_ROM = 1
+int SPLINE_BSPLINE = 2
+int splineType = SPLINE_BEZIER
 
-int splineType = BEZIER
+float TRIANGLE_HEIGHT = 4
+float TRIANGLE_BASE = TRIANGLE_HEIGHT * 2
+float triangleT
+int triangleIndex
+
 bool first = true
 
 size("Spline", WIDTH, HEIGHT)
@@ -39,6 +46,7 @@ void draw(int time)
   input()
   drawControlPoints()
   drawSpline()
+  drawTriangle()
 
 void input()
   if isKeyPressed(KEY_SPACE)
@@ -60,7 +68,7 @@ void input()
     first = true 
 
 void mousePressed(int x, int y)
-  Vector2 cursor = translateCoords(x, y)
+  Vector2 cursor = mouseToScreen(x, y)
   for Vector4 controlPoint in controlPoints
     if (
       controlPoint.x <= cursor.x and 
@@ -69,66 +77,35 @@ void mousePressed(int x, int y)
       controlPoint.y + SQUARE_SIZE * 2 >= cursor.y
     )
       selectedControlPoint = controlPoint
+      dragOffset = Vector2(
+        cursor.x - controlPoint.x,
+        cursor.y - controlPoint.y
+      )
 
 void mouseDragged(int x, int y)
   if selectedControlPoint
-    Vector2 cursor = translateCoords(x, y)
+    Vector2 cursor = mouseToScreen(x, y)
     
-    selectedControlPoint.x = cursor.x
-    selectedControlPoint.y = cursor.y
+    selectedControlPoint.x = cursor.x - dragOffset.x
+    selectedControlPoint.y = cursor.y - dragOffset.y
 
 void mouseReleased(int x, int y)
   selectedControlPoint = null
 
 void keyPressed()
   splineType = (splineType + 1) % 3
+  triangleIndex = 0
+  triangleT = 0
 
 void drawSpline()
   stroke(255, 255, 255)
 
-  for int index = 0; index < controlPoints.length; index += splineType == BEZIER ? 3 : 1
+  for int index = 0; index < controlPoints.length; index += splineType == SPLINE_BEZIER ? 3 : 1
     Vector4 previousPosition
-
-    Mat4 P = Mat4(
-      controlPoints[index],
-      controlPoints[(index + 1) % controlPoints.length],
-      controlPoints[(index + 2) % controlPoints.length],
-      controlPoints[(index + 3) % controlPoints.length]
-    )
 
     for int x = 0; x <= SPLINE_SUBDIVISIONS; x += 1
       float t = (float)x / SPLINE_SUBDIVISIONS
-
-      Vector4 T = Vector4(t * t * t, t * t, t, 1.0)
-      Vector4 position
-
-      if splineType == BEZIER
-        Mat4 M = Mat4(
-          -1, 3, -3, 1,
-          3, -6, 3, 0,
-          -3, 3, 0, 0,
-          1, 0, 0, 0
-        )
-
-        position = P * M * T
-      else if splineType == CATMULL_ROM
-        Mat4 M = Mat4(
-          -1, 3, -3, 1,
-          2, -5, 4, -1,
-          -1, 0, 1, 0,
-          0, 2, 0, 0
-        )
-
-        position = P * (M * 0.5) * T
-      else if splineType == BSPLINE
-        Mat4 M = Mat4(
-          -1, 3, -3, 1,
-          3, -6, 3, 0,
-          -3, 0, 3, 0,
-          1, 4, 1, 0
-        )
-
-        position = P * (M * (1.0 / 6.0)) * T
+      Vector4 position = spline(index, t, false)
 
       if previousPosition
         int x0 = (int)(previousPosition.x * (WIDTH / 2) + WIDTH / 2)
@@ -140,6 +117,45 @@ void drawSpline()
 
       previousPosition = position
 
+void drawTriangle()
+  triangleT += 0.75 * getFrameTime()
+  
+  if triangleT > 1
+    triangleT = 0
+    triangleIndex = (triangleIndex + (splineType == SPLINE_BEZIER ? 3 : 1)) % controlPoints.length
+
+  Vector4 position = spline(triangleIndex, triangleT, false)
+  Vector4 direction = spline(triangleIndex, triangleT, true)
+
+  int x = (int)(position.x * (WIDTH / 2) + WIDTH / 2)
+  int y = (int)(position.y * (HEIGHT / 2) + HEIGHT / 2)
+
+  float angle = atan2(direction.y, direction.x) + PI / 2
+  float cosA = cos(angle)
+  float sinA = sin(angle)
+  float halfBase = TRIANGLE_BASE
+
+  float px0 = 0
+  float py0 = -TRIANGLE_HEIGHT
+
+  float px1 = -halfBase
+  float py1 = halfBase
+
+  float px2 = halfBase
+  float py2 = halfBase
+
+  float x0 = x + (px0 * cosA - py0 * sinA)
+  float y0 = y + (px0 * sinA + py0 * cosA)
+
+  float x1 = x + (px1 * cosA - py1 * sinA)
+  float y1 = y + (px1 * sinA + py1 * cosA)
+
+  float x2 = x + (px2 * cosA - py2 * sinA)
+  float y2 = y + (px2 * sinA + py2 * cosA)
+
+  fill(255, 0, 0)
+  triangle((int)x0, (int)y0, (int)x1, (int)y1, (int)x2, (int)y2)
+
 void drawControlPoints()
   fill(255, 255, 255)
 
@@ -149,13 +165,52 @@ void drawControlPoints()
   
     rect(x, y, (int)(SQUARE_SIZE * WIDTH), (int)(SQUARE_SIZE * HEIGHT))
 
-Vector2 translateCoords(int x, int y)
-  float width_midpoint = (WIDTH / 2.0)
-  float height_midpoint = (HEIGHT / 2.0)
-  float horizontal_delta = -(width_midpoint - x) / width_midpoint
-  float vertical_delta = -(height_midpoint - y) / height_midpoint
+Vector2 mouseToScreen(int x, int y)
+  float widthMidpoint = (WIDTH / 2.0)
+  float heightMidpoint = (HEIGHT / 2.0)
+  float horizontalDelta = -(widthMidpoint - x) / widthMidpoint
+  float verticalDelta = -(heightMidpoint - y) / heightMidpoint
 
-  return Vector2(horizontal_delta, vertical_delta)
+  return Vector2(horizontalDelta, verticalDelta)
+
+Vector4 spline(int index, float t, bool direction)
+  Mat4 P = Mat4(
+    controlPoints[index],
+    controlPoints[(index + 1) % controlPoints.length],
+    controlPoints[(index + 2) % controlPoints.length],
+    controlPoints[(index + 3) % controlPoints.length]
+  )
+
+  Vector4 T = (direction ? Vector4(3 * t * t , 2 * t, 1.0, 0.0) :
+                           Vector4(t * t * t, t * t, t, 1.0))
+
+  if splineType == SPLINE_BEZIER
+    Mat4 M = Mat4(
+      -1, 3, -3, 1,
+      3, -6, 3, 0,
+      -3, 3, 0, 0,
+      1, 0, 0, 0
+    )
+
+    return P * M * T
+  else if splineType == SPLINE_CATMULL_ROM
+    Mat4 M = Mat4(
+      -1, 3, -3, 1,
+      2, -5, 4, -1,
+      -1, 0, 1, 0,
+      0, 2, 0, 0
+    )
+
+    return P * (M * 0.5) * T
+  else
+    Mat4 M = Mat4(
+      -1, 3, -3, 1,
+      3, -6, 3, 0,
+      -3, 0, 3, 0,
+      1, 4, 1, 0
+    )
+
+    return P * (M * (1.0 / 6.0)) * T
 
 class Vector2
   float x
@@ -178,59 +233,6 @@ class Vector2
   float cross(Vector2 q)
     return x * q.y - y * q.x
 
-class Vector3
-  float x
-  float y
-  float z
-
-  void __init__()
-  void __init__(float n)
-    this.x = n
-    this.y = n
-    this.z = n
-
-  void __init__(float x, float y, float z)
-    this.x = x
-    this.y = y
-    this.z = z
-
-  Vector3 __mul__(float factor)
-    return Vector3(x * factor, y * factor, z * factor)
-
-  Vector3 __add__(Vector3 v2)
-    return Vector3(
-      x + v2.x,
-      y + v2.y,
-      z + v2.z
-    )
-
-  Vector3 __sub__(Vector3 v2)
-    return Vector3(
-      x - v2.x, 
-      y - v2.y, 
-      z - v2.z 
-    )
-
-  bool __eq__(Vector3 v2)
-    return x == v2.x and y == v2.y and z == v2.z
-
-  Vector3 normalize()
-    float norm = (x * x + y * y + z * z).sqrt()
-    return Vector3(x / norm, y / norm, z / norm)
-
-  float dot(Vector3 q)
-    return x * q.x + y * q.y + z * q.z
-
-  Vector3 cross(Vector3 vect_B)
-    return Vector3(
-      y * vect_B.z - z * vect_B.y, 
-      z * vect_B.x - x * vect_B.z,
-      x * vect_B.y - y * vect_B.x
-    )
-
-  Vector3 clone()
-    return Vector3(x,y,z)
-
 class Vector4
   float x
   float y
@@ -248,12 +250,6 @@ class Vector4
     this.x = x
     this.y = y
     this.z = z
-    this.w = w
-
-  void __init__(Vector3 v, float w)
-    this.x = v.x
-    this.y = v.y
-    this.z = v.z
     this.w = w
 
   Vector4 __add__(Vector4 v2)
@@ -287,9 +283,6 @@ class Vector4
   Vector4 normalize()
     float len = length()
     return Vector4(x / len, y / len, z / len, w / len)
-
-  Vector3 xyz()
-    return Vector3(x, y, z)
 
   Vector4 clone()
     return Vector4(x, y, z, w)
@@ -387,25 +380,25 @@ class Mat4
   
   Mat4 __mul__(Mat4 b)
     return Mat4(
-      m00*b.m00 + m10*b.m01 + m20*b.m02 + m30*b.m03,
-      m01*b.m00 + m11*b.m01 + m21*b.m02 + m31*b.m03,
-      m02*b.m00 + m12*b.m01 + m22*b.m02 + m32*b.m03,
-      m03*b.m00 + m13*b.m01 + m23*b.m02 + m33*b.m03,
+      m00 * b.m00 + m10 * b.m01 + m20 * b.m02 + m30 * b.m03,
+      m01 * b.m00 + m11 * b.m01 + m21 * b.m02 + m31 * b.m03,
+      m02 * b.m00 + m12 * b.m01 + m22 * b.m02 + m32 * b.m03,
+      m03 * b.m00 + m13 * b.m01 + m23 * b.m02 + m33 * b.m03,
 
-      m00*b.m10 + m10*b.m11 + m20*b.m12 + m30*b.m13,
-      m01*b.m10 + m11*b.m11 + m21*b.m12 + m31*b.m13,
-      m02*b.m10 + m12*b.m11 + m22*b.m12 + m32*b.m13,
-      m03*b.m10 + m13*b.m11 + m23*b.m12 + m33*b.m13,
+      m00 * b.m10 + m10 * b.m11 + m20 * b.m12 + m30 * b.m13,
+      m01 * b.m10 + m11 * b.m11 + m21 * b.m12 + m31 * b.m13,
+      m02 * b.m10 + m12 * b.m11 + m22 * b.m12 + m32 * b.m13,
+      m03 * b.m10 + m13 * b.m11 + m23 * b.m12 + m33 * b.m13,
 
-      m00*b.m20 + m10*b.m21 + m20*b.m22 + m30*b.m23,
-      m01*b.m20 + m11*b.m21 + m21*b.m22 + m31*b.m23,
-      m02*b.m20 + m12*b.m21 + m22*b.m22 + m32*b.m23,
-      m03*b.m20 + m13*b.m21 + m23*b.m22 + m33*b.m23,
+      m00 * b.m20 + m10 * b.m21 + m20 * b.m22 + m30 * b.m23,
+      m01 * b.m20 + m11 * b.m21 + m21 * b.m22 + m31 * b.m23,
+      m02 * b.m20 + m12 * b.m21 + m22 * b.m22 + m32 * b.m23,
+      m03 * b.m20 + m13 * b.m21 + m23 * b.m22 + m33 * b.m23,
 
-      m00*b.m30 + m10*b.m31 + m20*b.m32 + m30*b.m33,
-      m01*b.m30 + m11*b.m31 + m21*b.m32 + m31*b.m33,
-      m02*b.m30 + m12*b.m31 + m22*b.m32 + m32*b.m33,
-      m03*b.m30 + m13*b.m31 + m23*b.m32 + m33*b.m33
+      m00 * b.m30 + m10 * b.m31 + m20 * b.m32 + m30 * b.m33,
+      m01 * b.m30 + m11 * b.m31 + m21 * b.m32 + m31 * b.m33,
+      m02 * b.m30 + m12 * b.m31 + m22 * b.m32 + m32 * b.m33,
+      m03 * b.m30 + m13 * b.m31 + m23 * b.m32 + m33 * b.m33
     )
 
   Mat4 __mul__(float factor)
