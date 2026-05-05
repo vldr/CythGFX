@@ -1,0 +1,43 @@
+{
+    "cyth.imports": [
+        "void size(string title, int width, int height)",
+        "void clear()",
+        "void fill(int r, int g, int b)",
+        "void fill(int r, int g, int b, int a)",
+        "void stroke(int r, int g, int b)",
+        "void stroke(int r, int g, int b, int a)",
+        "void rect(int x, int y, int width, int height)",
+        "void circle(int x, int y, int radius)",
+        "void line(int x0, int y0, int x1, int y1)",
+        "void triangle(int x0, int y0, int x1, int y1, int x2, int y2)",
+        "void image(Image image, int x, int y)",
+        "int createImage(int width, int height)",
+        "void clearImage(Image image)",
+        "void text(string text, int x, int y, int fontSize)",
+        "Size textSize(string text, int fontSize)",
+        "bool isKeyDown(int key)",
+        "bool isKeyUp(int key)",
+        "bool isKeyPressed(int key)",
+        "bool isKeyReleased(int key)",
+        "bool isMouseButtonDown(int button)",
+        "bool isMouseButtonUp(int button)",
+        "bool isMouseButtonPressed(int button)",
+        "bool isMouseButtonReleased(int button)",
+        "float getFrameTime()",
+        "int getMouseX()",
+        "int getMouseY()",
+        "int getRandomValue(int min, int max)",
+        "float atan2(float y, float x)",
+        "float cos(float a)",
+        "float sin(float a)",
+        "float tan(float a)",
+        "float exp(float a)",
+        "float abs(float a)",
+        "float pow(float a, float b)",
+        "void print(string a)",
+        "void println(string a)"
+    ],
+    "cyth.files": {
+        "builtin.cy": "class Image\n  int id\n  int width\n  int height\n  char[] data\n\n  void __init__(int width, int height)\n    this.id = createImage(width, height)\n    this.width = width\n    this.height = height\n    this.data.reserve(width * height * 3)\n\n  void clear()\n    clearImage(this)\n\n  void draw()\n    image(this, 0, 0)\n\n  void draw(int x, int y)\n    image(this, x, y)\n\nclass Size\n  int width\n  int height\n\nint KEY_NULL            = 0\nint KEY_APOSTROPHE      = 39\nint KEY_COMMA           = 44\nint KEY_MINUS           = 45\nint KEY_PERIOD          = 46\nint KEY_SLASH           = 47\nint KEY_ZERO            = 48\nint KEY_ONE             = 49\nint KEY_TWO             = 50\nint KEY_THREE           = 51\nint KEY_FOUR            = 52\nint KEY_FIVE            = 53\nint KEY_SIX             = 54\nint KEY_SEVEN           = 55\nint KEY_EIGHT           = 56\nint KEY_NINE            = 57\nint KEY_SEMICOLON       = 59\nint KEY_EQUAL           = 61\nint KEY_A               = 65\nint KEY_B               = 66\nint KEY_C               = 67\nint KEY_D               = 68\nint KEY_E               = 69\nint KEY_F               = 70\nint KEY_G               = 71\nint KEY_H               = 72\nint KEY_I               = 73\nint KEY_J               = 74\nint KEY_K               = 75\nint KEY_L               = 76\nint KEY_M               = 77\nint KEY_N               = 78\nint KEY_O               = 79\nint KEY_P               = 80\nint KEY_Q               = 81\nint KEY_R               = 82\nint KEY_S               = 83\nint KEY_T               = 84\nint KEY_U               = 85\nint KEY_V               = 86\nint KEY_W               = 87\nint KEY_X               = 88\nint KEY_Y               = 89\nint KEY_Z               = 90\nint KEY_LEFT_BRACKET    = 91\nint KEY_BACKSLASH       = 92\nint KEY_RIGHT_BRACKET   = 93\nint KEY_GRAVE           = 96\nint KEY_SPACE           = 32 \nint KEY_ESCAPE          = 256\nint KEY_ENTER           = 257\nint KEY_TAB             = 258\nint KEY_BACKSPACE       = 259\nint KEY_INSERT          = 260\nint KEY_DELETE          = 261\nint KEY_RIGHT           = 262\nint KEY_LEFT            = 263\nint KEY_DOWN            = 264\nint KEY_UP              = 265\nint KEY_PAGE_UP         = 266\nint KEY_PAGE_DOWN       = 267\nint KEY_HOME            = 268\nint KEY_END             = 269\nint KEY_CAPS_LOCK       = 280\nint KEY_SCROLL_LOCK     = 281\nint KEY_NUM_LOCK        = 282\nint KEY_PRINT_SCREEN    = 283\nint KEY_PAUSE           = 284\nint KEY_F1              = 290\nint KEY_F2              = 291\nint KEY_F3              = 292\nint KEY_F4              = 293\nint KEY_F5              = 294\nint KEY_F6              = 295\nint KEY_F7              = 296\nint KEY_F8              = 297\nint KEY_F9              = 298\nint KEY_F10             = 299\nint KEY_F11             = 300\nint KEY_F12             = 301\nint KEY_LEFT_SHIFT      = 340\nint KEY_LEFT_CONTROL    = 341\nint KEY_LEFT_ALT        = 342\nint KEY_LEFT_SUPER      = 343\nint KEY_RIGHT_SHIFT     = 344\nint KEY_RIGHT_CONTROL   = 345\nint KEY_RIGHT_ALT       = 346\nint KEY_RIGHT_SUPER     = 347\nint KEY_KB_MENU         = 348\nint KEY_KP_0            = 320\nint KEY_KP_1            = 321\nint KEY_KP_2            = 322\nint KEY_KP_3            = 323\nint KEY_KP_4            = 324\nint KEY_KP_5            = 325\nint KEY_KP_6            = 326\nint KEY_KP_7            = 327\nint KEY_KP_8            = 328\nint KEY_KP_9            = 329\nint KEY_KP_DECIMAL      = 330\nint KEY_KP_DIVIDE       = 331\nint KEY_KP_MULTIPLY     = 332\nint KEY_KP_SUBTRACT     = 333\nint KEY_KP_ADD          = 334\nint KEY_KP_ENTER        = 335\nint KEY_KP_EQUAL        = 336\nint KEY_BACK            = 4\nint KEY_MENU            = 5\nint KEY_VOLUME_UP       = 24\nint KEY_VOLUME_DOWN     = 25\n\nint MOUSE_BUTTON_LEFT    = 0\nint MOUSE_BUTTON_RIGHT   = 1\nint MOUSE_BUTTON_MIDDLE  = 2\nint MOUSE_BUTTON_SIDE    = 3\nint MOUSE_BUTTON_EXTRA   = 4\nint MOUSE_BUTTON_FORWARD = 5\nint MOUSE_BUTTON_BACK    = 6"
+    }
+}
