@@ -414,7 +414,7 @@ static MIR_type_t data_type_to_sized_mir_type(DataType data_type)
     return MIR_T_I64;
   case TYPE_BOOL:
   case TYPE_CHAR:
-    return MIR_T_I8;
+    return MIR_T_U8;
   case TYPE_INTEGER:
     return MIR_T_I32;
   case TYPE_FLOAT:
@@ -894,7 +894,7 @@ static Function* generate_array_pop_function(CyVM* vm, DataType data_type)
 
       MIR_append_insn(vm->ctx, vm->function, panic_label);
 
-      generate_panic(vm, "Out of bounds access", TOKEN_EMPTY());
+      generate_panic(vm, "Out of bounds access.", TOKEN_EMPTY());
 
       MIR_append_insn(vm->ctx, vm->function, finish_label);
     }
@@ -1189,7 +1189,7 @@ static Function* generate_array_reserve_function(CyVM* vm, DataType data_type)
 
       MIR_append_insn(vm->ctx, vm->function, panic_label);
 
-      generate_panic(vm, "Invalid reservation amount", TOKEN_EMPTY());
+      generate_panic(vm, "Invalid reservation amount.", TOKEN_EMPTY());
 
       MIR_append_insn(vm->ctx, vm->function, continue_label);
     }
@@ -2309,6 +2309,7 @@ static void generate_literal_expression(CyVM* vm, MIR_reg_t dest, LiteralExpr* e
   switch (expression->data_type.type)
   {
   case TYPE_INTEGER:
+  case TYPE_CHAR:
     MIR_append_insn(vm->ctx, vm->function,
                     MIR_new_insn(vm->ctx, data_type_to_mov_type(expression->data_type),
                                  MIR_new_reg_op(vm->ctx, dest),
@@ -2330,12 +2331,6 @@ static void generate_literal_expression(CyVM* vm, MIR_reg_t dest, LiteralExpr* e
     MIR_append_insn(vm->ctx, vm->function,
                     MIR_new_insn(vm->ctx, data_type_to_mov_type(expression->data_type),
                                  MIR_new_reg_op(vm->ctx, dest), MIR_new_int_op(vm->ctx, 0)));
-    return;
-  case TYPE_CHAR:
-    MIR_append_insn(vm->ctx, vm->function,
-                    MIR_new_insn(vm->ctx, data_type_to_mov_type(expression->data_type),
-                                 MIR_new_reg_op(vm->ctx, dest),
-                                 MIR_new_int_op(vm->ctx, expression->string.data[0])));
     return;
   case TYPE_STRING:
     generate_string_literal_expression(vm, MIR_new_reg_op(vm->ctx, dest), expression->string.data,
@@ -3567,7 +3562,7 @@ static void generate_cast_expression(CyVM* vm, MIR_reg_t dest, CastExpr* express
                       MIR_new_insn(vm->ctx, MIR_JMP, MIR_new_label_op(vm->ctx, cont_label)));
       MIR_append_insn(vm->ctx, vm->function, if_false_label);
 
-      generate_panic(vm, "Invalid type cast", expression->type.token);
+      generate_panic(vm, "Invalid type cast to string.", expression->type.token);
 
       MIR_append_insn(vm->ctx, vm->function, cont_label);
       return;
@@ -3720,7 +3715,7 @@ static void generate_cast_expression(CyVM* vm, MIR_reg_t dest, CastExpr* express
                       MIR_new_insn(vm->ctx, MIR_JMP, MIR_new_label_op(vm->ctx, cont_label)));
       MIR_append_insn(vm->ctx, vm->function, if_false_label);
 
-      generate_panic(vm, "Invalid type cast", expression->type.token);
+      generate_panic(vm, "Invalid type cast to array.", expression->type.token);
 
       MIR_append_insn(vm->ctx, vm->function, cont_label);
       return;
@@ -3761,7 +3756,7 @@ static void generate_cast_expression(CyVM* vm, MIR_reg_t dest, CastExpr* express
                       MIR_new_insn(vm->ctx, MIR_JMP, MIR_new_label_op(vm->ctx, cont_label)));
       MIR_append_insn(vm->ctx, vm->function, if_false_label);
 
-      generate_panic(vm, "Invalid type cast", expression->type.token);
+      generate_panic(vm, "Invalid type cast to object.", expression->type.token);
 
       MIR_append_insn(vm->ctx, vm->function, cont_label);
       return;
