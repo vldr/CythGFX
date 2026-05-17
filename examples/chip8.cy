@@ -16,7 +16,7 @@ memory.reserve(4096)
 int[] stack
 stack.reserve(16)
 
-int[] display
+bool[] display
 display.reserve(64 * 32)
 
 int[] keypad
@@ -129,17 +129,17 @@ void draw(int time)
   if drawing
     drawing = false
 
-    img.clear()
-
     for int y = 0; y < img.height; y += 1
       for int x = 0; x < img.width; x += 1
-        int index = (x + y * img.width) * 3
-        if display[(x / 10) + (y / 10) * (img.width / 10)]
-          img.data[index] = (char)255
-          img.data[index + 1] = (char)255
-          img.data[index + 2] = (char)255
+        int i = (x / 10) + (y / 10) * (img.width / 10)
+        char color = display[i] ? (char)0xFF : (char)0x00
 
-    img.draw()
+        int j = (x + y * img.width) * 3
+        img.data[j] = color
+        img.data[j + 1] = color
+        img.data[j + 2] = color
+
+  img.draw()
 
 void loadRom(char[] data)
   int index = 0x200
@@ -310,9 +310,10 @@ void opD(int opcode)
     for int j = 0; j < wt; j += 1
       if (pixel & (0x80 >> j)) != 0
         int index = ((x + j) + ((y + i) * 64)) % 2048
-        if display[index] == 1
+        if display[index]
           V[0xF] = (char)1
-        display[index] = display[index] ^ 1
+      
+        display[index] = not display[index]
 
   drawing = true
   pc += 2
