@@ -249,10 +249,11 @@ void op8(int opcode)
     pc += 2
 
   else if val == 5
-    if (int)V[reg1] < (int)V[reg2]
-      V[0xF] = (char)0
-    else
+    if (int)V[reg1] > (int)V[reg2]
       V[0xF] = (char)1
+    else
+      V[0xF] = (char)0
+
     V[reg1] = (char)((int)V[reg1] - (int)V[reg2])
     pc += 2
 
