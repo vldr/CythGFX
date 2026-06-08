@@ -136,6 +136,10 @@ static void image(Img* image, int x, int y) {
   DrawTexture(texture, x, y, (Color){ 255, 255, 255, 255 });
 }
 
+static int getTime(void) {
+  return GetTime() * 1000;
+}
+
 int main(int argc, char **argv) {
   SetConfigFlags(FLAG_VSYNC_HINT);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -166,6 +170,7 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "bool isMouseButtonPressed(int button)", (uintptr_t)IsMouseButtonPressed);
   cyth_load_function(vm, "bool isMouseButtonReleased(int button)", (uintptr_t)IsMouseButtonReleased);
   cyth_load_function(vm, "float getFrameTime()", (uintptr_t)GetFrameTime);
+  cyth_load_function(vm, "int getTime()", (uintptr_t)getTime);
   cyth_load_function(vm, "int getMouseX()", (uintptr_t)GetMouseX);
   cyth_load_function(vm, "int getMouseY()", (uintptr_t)GetMouseY);
   cyth_load_function(vm, "int getRandomValue(int min, int max)", (uintptr_t)GetRandomValue);
@@ -345,7 +350,7 @@ int main(int argc, char **argv) {
     cyth_try_catch(vm, {
       while (!WindowShouldClose()) {
         BeginDrawing();
-        draw(GetTime() * 1000);
+        draw(getTime());
         EndDrawing();
       }
     });
