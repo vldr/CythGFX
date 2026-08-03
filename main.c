@@ -19,9 +19,11 @@ typedef struct {
 } Size;
 
 typedef void(*DrawFunc)(int);
+typedef void(*TraceFunc)(int, CyString* message);
 
-Color fill_color;
-Color stroke_color;
+Color fillColor;
+Color strokeColor;
+TraceFunc traceFunc;
 
 static void print(CyString* string) {
   fwrite(string->data, 1, string->size, stdout);
@@ -34,7 +36,7 @@ static void println(CyString* string) {
 }
 
 static void clear(void) {
-  ClearBackground(fill_color);
+  ClearBackground(fillColor);
 }
 
 static void size(CyString* title, int width, int height) {
@@ -42,51 +44,51 @@ static void size(CyString* title, int width, int height) {
 }
 
 static void fill(int r, int g, int b) {
-  fill_color.r = r;
-  fill_color.g = g;
-  fill_color.b = b;
-  fill_color.a = 255;
+  fillColor.r = r;
+  fillColor.g = g;
+  fillColor.b = b;
+  fillColor.a = 255;
 }
 
 static void fill2(int r, int g, int b, int a) {
-  fill_color.r = r;
-  fill_color.g = g;
-  fill_color.b = b;
-  fill_color.a = a;
+  fillColor.r = r;
+  fillColor.g = g;
+  fillColor.b = b;
+  fillColor.a = a;
 }
 
 static void stroke(int r, int g, int b) {
-  stroke_color.r = r;
-  stroke_color.g = g;
-  stroke_color.b = b;
-  stroke_color.a = 255;
+  strokeColor.r = r;
+  strokeColor.g = g;
+  strokeColor.b = b;
+  strokeColor.a = 255;
 }
 
 static void stroke2(int r, int g, int b, int a) {
-  stroke_color.r = r;
-  stroke_color.g = g;
-  stroke_color.b = b;
-  stroke_color.a = a;
+  strokeColor.r = r;
+  strokeColor.g = g;
+  strokeColor.b = b;
+  strokeColor.a = a;
 }
 
 static void rect(int x, int y, int width, int height) {
-  DrawRectangle(x, y, width, height, fill_color);
+  DrawRectangle(x, y, width, height, fillColor);
 }
 
 static void circle(int x, int y, int radius) {
-  DrawCircle(x, y, radius, fill_color);
+  DrawCircle(x, y, radius, fillColor);
 }
 
 static void line(int x0, int y0, int x1, int y1) {
-  DrawLine(x0, y0, x1, y1, stroke_color);
+  DrawLine(x0, y0, x1, y1, strokeColor);
 }
 
 static void triangle(int x0, int y0, int x1, int y1, int x2, int y2) {
-  DrawTriangle((Vector2){x0, y0}, (Vector2){x1, y1}, (Vector2){x2, y2}, fill_color);
+  DrawTriangle((Vector2){x0, y0}, (Vector2){x1, y1}, (Vector2){x2, y2}, fillColor);
 }
 
 static void text(CyString* text, int x, int y, int fontSize) {
-  DrawText(text->data, x, y, fontSize, fill_color);
+  DrawText(text->data, x, y, fontSize, fillColor);
 }
 
 static Size* textSize(CyString* text, int fontSize) {
@@ -111,9 +113,9 @@ static void clearImage(Img* image) {
 
   unsigned char* data = image->data->data;
   for (int i = 0; i < image->width * image->height * 3; i += 3) {
-    data[i] = fill_color.r;
-    data[i + 1] = fill_color.g;
-    data[i + 2] = fill_color.b;
+    data[i] = fillColor.r;
+    data[i + 1] = fillColor.g;
+    data[i + 2] = fillColor.b;
   }
 }
 
@@ -140,10 +142,32 @@ static int getTime(void) {
   return GetTime() * 1000;
 }
 
+static void setTraceCallback(TraceFunc func) {
+  traceFunc = func;
+}
+
+static void traceCallback(int logLevel, const char *text, va_list args) {
+  if (!traceFunc)
+    return;
+
+  va_list args_copy;
+  va_copy(args_copy, args);
+  
+  int size = vsnprintf(NULL, 0, text, args);
+
+  CyString* message = cyth_alloc(1, sizeof(CyString) + size + 1);
+  message->size = size;
+
+  vsnprintf(message->data, size + 1, text, args_copy);
+  va_end(args_copy);
+
+  traceFunc(logLevel, message);  
+}
+
 int main(int argc, char **argv) {
   SetConfigFlags(FLAG_VSYNC_HINT);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  SetTraceLogLevel(LOG_ERROR); 
+  SetTraceLogCallback(traceCallback);
 
   CyVM* vm = cyth_init();
   cyth_load_function(vm, "void size(string title, int width, int height)", (uintptr_t)size);
@@ -183,6 +207,7 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "float pow(float a, float b)", (uintptr_t)powf);
   cyth_load_function(vm, "void print(string a)", (uintptr_t)print);
   cyth_load_function(vm, "void println(string a)", (uintptr_t)println);
+  cyth_load_function(vm, "void setTraceCallback(void(int, string) callback)", (uintptr_t)setTraceCallback);
   cyth_load_string(vm, "builtin.cy",
     "class Image\n"
     "  int id\n"

@@ -52,6 +52,7 @@ Triangle[] sphereList = makeSphere(SPHERE_SIZE, 10)
 Triangle[] rotatedList
 rotatedList.reserve(sphereList.length)
 
+setTraceCallback(traceLog)
 size("Sphere", 640, 640)
 fill(0, 0, 0)
 
@@ -127,6 +128,9 @@ void keyPressed()
   if isKeyPressed(KEY_NORMALS)
     normals = !normals
     keyPressed = true
+
+void traceLog(int level, string message)
+  println(message)
 
 void color(float _r, float _g, float _b)
   r = (char)min((int)(_r * 255), 255)
