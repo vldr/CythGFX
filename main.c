@@ -347,13 +347,11 @@ int main(int argc, char **argv) {
 
   DrawFunc draw = (DrawFunc) cyth_get_function(vm, "draw.void(int)");
   if (draw) {
-    cyth_try_catch(vm, {
-      while (!WindowShouldClose()) {
-        BeginDrawing();
-        draw(getTime());
-        EndDrawing();
-      }
-    });
+    while (!cyth_error(vm) && !WindowShouldClose()) {
+      BeginDrawing();
+      draw(getTime());
+      EndDrawing();
+    }
   }
 
   cyth_destroy(vm);
