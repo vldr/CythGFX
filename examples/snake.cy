@@ -14,7 +14,7 @@ class Game
 
   int height
   int width
-  Vector resolution
+  Position resolution
 
   Snake snake
   Apple apple
@@ -25,7 +25,7 @@ class Game
 
     this.width = width
     this.height = height
-    this.resolution = Vector(windowWidth / width, windowHeight / height)
+    this.resolution = Position(windowWidth / width, windowHeight / height)
 
     this.snake = Snake(width / 2 * resolution.x, (height - 1) * resolution.y)
     this.apple = Apple(width / 2 * resolution.x, height / 2 * resolution.y)
@@ -121,16 +121,16 @@ class Game
     return rgb
 
 class Snake
-  Vector[] body
-  Vector[] oldBody
+  Position[] body
+  Position[] oldBody
 
-  Vector direction
+  Position direction
   bool dead
 
   void __init__(int x, int y)
-    direction = Vector(0, -1)
-    body.push(Vector(x, y))
-    oldBody.push(Vector(x, y))
+    direction = Position(0, -1)
+    body.push(Position(x, y))
+    oldBody.push(Position(x, y))
 
   void update()
     if dead
@@ -183,28 +183,28 @@ class Snake
         
         fill(rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF)
 
-      Vector difference = body[i] - oldBody[i]
+      Position difference = body[i] - oldBody[i]
       if difference.x == game.width * game.resolution.x - game.resolution.x
-        difference = Vector(-game.resolution.x, 0)
+        difference = Position(-game.resolution.x, 0)
       if difference.x == -game.width * game.resolution.x + game.resolution.x
-        difference = Vector(game.resolution.x, 0)
+        difference = Position(game.resolution.x, 0)
       if difference.y == game.height * game.resolution.y - game.resolution.y
-        difference = Vector(0, -game.resolution.y)
+        difference = Position(0, -game.resolution.y)
       if difference.y == -game.height * game.resolution.y + game.resolution.y
-        difference = Vector(0, game.resolution.y)
+        difference = Position(0, game.resolution.y)
 
       difference.x = (int)(difference.x * game.delta)
       difference.y = (int)(difference.y * game.delta)
 
-      Vector position = oldBody[i] + difference
+      Position position = oldBody[i] + difference
       circle(position.x + game.resolution.x / 2, position.y + game.resolution.y / 2, game.resolution.x / 2)
 
 class Apple
-  Vector position
+  Position position
   float hue
 
   void __init__(int x, int y)
-    position = Vector(x, y)
+    position = Position(x, y)
 
   void update()
     if position == game.snake.body[0]
@@ -221,7 +221,7 @@ class Apple
     fill(rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF)
     circle(position.x + game.resolution.x / 2, position.y + game.resolution.y / 2, game.resolution.x / 2)
 
-class Vector
+class Position
   int x
   int y
 
@@ -229,17 +229,17 @@ class Vector
     this.x = x
     this.y = y
 
-  Vector __add__(Vector other)
-    return Vector(x + other.x, y + other.y)
+  Position __add__(Position other)
+    return Position(x + other.x, y + other.y)
 
-  Vector __sub__(Vector other)
-    return Vector(x - other.x, y - other.y)
+  Position __sub__(Position other)
+    return Position(x - other.x, y - other.y)
 
-  Vector __mul__(Vector other)
-    return Vector(x * other.x, y * other.y)
+  Position __mul__(Position other)
+    return Position(x * other.x, y * other.y)
 
-  bool __eq__(Vector other)
+  bool __eq__(Position other)
     return x == other.x and y == other.y
 
-  Vector clone()
-    return Vector(x, y)
+  Position clone()
+    return Position(x, y)

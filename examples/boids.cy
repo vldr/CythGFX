@@ -1,4 +1,5 @@
 # Ported from https://github.com/contextfreecode/life
+import "common/math.cy"
 
 int WIDTH = 800
 int HEIGHT = 600
@@ -130,35 +131,3 @@ class Boid
   void __init__(Vector2 pos, Vector2 vel)
     this.pos = pos
     this.vel = vel
-
-class Vector2
-  float x
-  float y
-
-  void __init__()
-  void __init__(float x, float y)
-    this.x = x
-    this.y = y
-
-  Vector2 __add__(Vector2 other)
-    return Vector2(x + other.x, y + other.y)
-
-  Vector2 __sub__(Vector2 other)
-    return Vector2(x - other.x, y - other.y)
-
-  Vector2 __mul__(float factor)
-    return Vector2(x * factor, y * factor)
-
-  float length()
-    return (x * x + y * y).sqrt()
-
-  Vector2 normalize()
-    float len = length()
-    if len != 0
-      return Vector2(x / len, y / len)
-    return Vector2(0, 0)
-
-float max(float a, float b)
-  if a > b
-    return a
-  return b

@@ -1,3 +1,5 @@
+import "common/math.cy"
+
 int SPHERE_SIZE = 200
 int M_AMBIENT = 0 
 int M_DIFFUSE = 1 
@@ -151,97 +153,6 @@ void vertex(int x, int y)
   img.data[index] = r
   img.data[index + 1] = g
   img.data[index + 2] = b
-
-class Vector2
-  float x
-  float y
-
-  void __init__()
-
-  void __init__(float x, float y)
-    this.x = x
-    this.y = y
-
-  bool __eq__(Vector2 v2)
-    return x == v2.x and y == v2.y
-
-  Vector2 __sub__(Vector2 v2)
-    return Vector2(
-      x - v2.x, 
-      y - v2.y
-    )
-  
-  float cross(Vector2 q)
-    return x * q.y - y * q.x
-
-class Vector3
-  float x
-  float y
-  float z
-
-  void __init__()
-
-  void __init__(float n)
-    this.x = n
-    this.y = n
-    this.z = n
-
-  void __init__(float x, float y, float z)
-    this.x = x
-    this.y = y
-    this.z = z
-
-  Vector3 __mul__(float factor)
-    return Vector3(x * factor, y * factor, z * factor)
-
-  Vector3 normalize()
-    float norm = (x * x + y * y + z * z).sqrt()
-    return Vector3(x / norm, y / norm, z / norm)
-
-  float dot(Vector3 q)
-    return x * q.x + y * q.y + z * q.z
-
-  Vector3 __add__(Vector3 v2)
-    return Vector3(
-      x + v2.x,
-      y + v2.y,
-      z + v2.z
-    )
-
-  Vector3 __sub__(Vector3 v2)
-    return Vector3(
-      x - v2.x, 
-      y - v2.y, 
-      z - v2.z 
-    )
-
-  bool __eq__(Vector3 v2)
-    return x == v2.x and y == v2.y and z == v2.z
-
-  Vector3 cross(Vector3 vect_B)
-    return Vector3(
-      y * vect_B.z - z * vect_B.y, 
-      z * vect_B.x - x * vect_B.z,
-      x * vect_B.y - y * vect_B.x
-    )
-
-  Vector3 clone()
-    return Vector3(x,y,z)
-
-float max(float a, float b)
-  return a > b ? a : b
-
-int min(int a, int b)
-  return a < b ? a : b
-
-float min(float a, float b)
-  return a < b ? a : b
-
-float max(float a, float b, float c)
-  return a > b ? (a > c ? a : c) : (b > c ? b : c)
-
-float min(float a, float b, float c)
-  return a < b ? (a < c ? a : c) : (b < c ? b : c)
 
 class Triangle
   void __init__(Vector3 V1, Vector3 V2, Vector3 V3)
