@@ -1,4 +1,5 @@
 # Ported from https://github.com/contextfreecode/life
+
 import "common/math.cy"
 
 int WIDTH = 800

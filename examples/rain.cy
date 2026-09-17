@@ -1,5 +1,7 @@
 # Ported from https://github.com/formodx/raindrops
 
+import "common/math.cy"
+
 int RainWave_COUNT = 3
 int RAINDROP_COUNT = 160
 int RIPPLE_COUNT = 200
@@ -34,14 +36,6 @@ class RainWave
     void __init__(int count, float amplitude)
         this.count = count
         this.amplitude = amplitude
-
-float clamp(float value, float min, float max)
-    if value <= min
-        return min
-    if value >= max
-        return max
-
-    return value
 
 int getWaterY(int x, float time)
     RainWave[] waves = [
