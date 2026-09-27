@@ -27,9 +27,31 @@
 #include "internal.h"
 
 #if defined(_GLFW_COCOA)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 #include <unistd.h>
 #include <math.h>
+
+#include <CoreVideo/CoreVideo.h>
+#include <dispatch/dispatch.h>
+
+static CVDisplayLinkRef glfwVsyncLink;
+static dispatch_semaphore_t glfwVsyncSemaphore;
+static int glfwVsyncInterval;
+
+static CVReturn glfwVsyncCallback(CVDisplayLinkRef link,
+                                  const CVTimeStamp* now,
+                                  const CVTimeStamp* output,
+                                  CVOptionFlags inFlags,
+                                  CVOptionFlags* outFlags,
+                                  void* user)
+{
+    if (__atomic_load_n(&glfwVsyncInterval, __ATOMIC_RELAXED) > 0)
+        dispatch_semaphore_signal(glfwVsyncSemaphore);
+
+    return kCVReturnSuccess;
+}
 
 static void makeContextCurrentNSGL(_GLFWwindow* window)
 {
@@ -49,26 +71,18 @@ static void swapBuffersNSGL(_GLFWwindow* window)
 {
     @autoreleasepool {
 
-    // HACK: Simulate vsync with usleep as NSGL swap interval does not apply to
-    //       windows with a non-visible occlusion state
-    if (window->ns.occluded)
+    const int interval =
+        __atomic_load_n(&glfwVsyncInterval, __ATOMIC_RELAXED);
+
+    if (glfwVsyncLink && interval > 0)
     {
-        int interval = 0;
-        [window->context.nsgl.object getValues:&interval
-                                  forParameter:NSOpenGLContextParameterSwapInterval];
+        while (dispatch_semaphore_wait(glfwVsyncSemaphore,
+                                       DISPATCH_TIME_NOW) == 0)
+            ;
 
-        if (interval > 0)
-        {
-            const double framerate = 60.0;
-            const uint64_t frequency = _glfwPlatformGetTimerFrequency();
-            const uint64_t value = _glfwPlatformGetTimerValue();
-
-            const double elapsed = value / (double) frequency;
-            const double period = 1.0 / framerate;
-            const double delay = period - fmod(elapsed, period);
-
-            usleep(floorl(delay * 1e6));
-        }
+        for (int i = 0; i < interval; i++)
+            dispatch_semaphore_wait(glfwVsyncSemaphore,
+                                    DISPATCH_TIME_FOREVER);
     }
 
     [window->context.nsgl.object flushBuffer];
@@ -83,8 +97,35 @@ static void swapIntervalNSGL(int interval)
     _GLFWwindow* window = _glfwPlatformGetTls(&_glfw.contextSlot);
     assert(window != NULL);
 
-    [window->context.nsgl.object setValues:&interval
-                              forParameter:NSOpenGLContextParameterSwapInterval];
+    if (interval > 0 && !glfwVsyncLink)
+    {
+        glfwVsyncSemaphore = dispatch_semaphore_create(0);
+
+        if (CVDisplayLinkCreateWithActiveCGDisplays(&glfwVsyncLink)
+            == kCVReturnSuccess)
+        {
+            CVDisplayLinkSetOutputCallback(glfwVsyncLink,
+                                           glfwVsyncCallback,
+                                           NULL);
+
+            CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(
+                glfwVsyncLink,
+                [window->context.nsgl.object CGLContextObj],
+                [window->context.nsgl.pixelFormat CGLPixelFormatObj]);
+
+            CVDisplayLinkStart(glfwVsyncLink);
+        }
+    }
+
+    __atomic_store_n(&glfwVsyncInterval,
+                     interval,
+                     __ATOMIC_RELAXED);
+
+    GLint nativeInterval = glfwVsyncLink ? 0 : interval;
+
+    [window->context.nsgl.object
+        setValues:&nativeInterval
+        forParameter:NSOpenGLContextParameterSwapInterval];
 
     } // autoreleasepool
 }
@@ -380,5 +421,6 @@ GLFWAPI id glfwGetNSGLContext(GLFWwindow* handle)
     return window->context.nsgl.object;
 }
 
+#pragma clang diagnostic pop
 #endif // _GLFW_COCOA
 

@@ -151,6 +151,8 @@ endif()
 if (GLFW_BUILD_COCOA)
     target_link_libraries(glfw PRIVATE "-framework Cocoa"
                                        "-framework IOKit"
+                                       "-framework CoreFoundation"
+                                       "-framework CoreVideo"
                                        "-framework CoreFoundation")
 
     set(glfw_PKG_DEPS "")
