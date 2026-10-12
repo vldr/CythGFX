@@ -72,7 +72,6 @@ jobs:
       
       - name: Bundle
         run: |
-           mv ../examples .
            zip -r cythgfx.zip cythgfx examples/
       
       - name: Publish
@@ -147,7 +146,6 @@ jobs:
       
       - name: Bundle
         run: |
-           mv ../examples .
            zip -r cythgfx.zip cythgfx examples/
       
       - name: Publish
