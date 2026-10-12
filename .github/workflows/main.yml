@@ -65,14 +65,14 @@ jobs:
                  -L/usr/lib \
                  -L/usr/lib/x86_64-linux-gnu \
                  -Wl,-Bstatic -lraylib -lcyth \
-                 -Wl,-Bdynamic  -lGL -lX11 -lm -lpthread -ldl -lrt \
+                 -Wl,-Bdynamic -lGL -lX11 -lm -lpthread -ldl -lrt \
                  -O3 -flto \
                  -s \
                  -o cythgfx
       
       - name: Bundle
         run: |
-          zip cythgfx.zip cythgfx
+           zip -r cythgfx.zip cythgfx ../examples/
       
       - name: Publish
         uses: svenstaro/upload-release-action@v2
@@ -139,14 +139,14 @@ jobs:
                  -L/usr/lib \
                  -L/usr/lib/aarch64-linux-gnu \
                  -Wl,-Bstatic -lraylib -lcyth \
-                 -Wl,-Bdynamic  -lGL -lX11 -lm -lpthread -ldl -lrt \
+                 -Wl,-Bdynamic -lGL -lX11 -lm -lpthread -ldl -lrt \
                  -O3 -flto \
                  -s \
                  -o cythgfx
       
       - name: Bundle
         run: |
-          zip cythgfx.zip cythgfx
+           zip -r cythgfx.zip cythgfx ../examples/
       
       - name: Publish
         uses: svenstaro/upload-release-action@v2
@@ -154,5 +154,119 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: cythgfx.zip
           asset_name: cythgfx-linux-arm64.zip
+          tag: build-${{ github.sha }}
+          overwrite: true
+
+  build-macos:
+    name: MacOS
+    concurrency: ci-macos-${{ github.ref }}
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build (ARM64)
+        run: |
+          cmake -DCMAKE_OSX_ARCHITECTURES="arm64" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -S . -B build
+          cd build
+          make -j3
+
+      - name: Bundle (ARM64)
+        run: |
+          cd build
+          zip -r cythgfx.zip cythgfx ../examples/
+
+      - name: Publish (ARM64)
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/cythgfx.zip
+          asset_name: cythgfx-macos-arm64.zip
+          tag: build-${{ github.sha }}
+          overwrite: true
+    
+      - name: Clean up
+        run: |
+          rm -rf build
+        
+      - name: Build (x64)
+        run: |
+          cmake -DCMAKE_OSX_ARCHITECTURES="x86_64" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -S . -B build
+          cd build
+          make -j3
+
+      - name: Bundle (x64)
+        run: |
+          cd build
+          zip -r cythgfx.zip cythgfx ../examples/
+
+      - name: Publish (x64)
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/cythgfx.zip
+          asset_name: cythgfx-macos-x86_64.zip
+          tag: build-${{ github.sha }}
+          overwrite: true
+
+  build-windows:
+    name: Windows (x64)
+    concurrency: ci-windows-${{ github.ref }}
+    runs-on: windows-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Add MSBUILD to PATH
+        uses: microsoft/setup-msbuild@v1.1
+  
+      - name: Build
+        run: |
+          cmake.exe -S . -B build
+          cd build
+          msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=x64
+        
+      - name: Bundle
+        run: |
+          cd build\Release
+          tar.exe -a -c -f cythgfx.zip cythgfx.exe ..\..\examples
+
+      - name: Publish
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/Release/cythgfx.zip
+          asset_name: cythgfx-windows-x86_64.zip
+          tag: build-${{ github.sha }}
+          overwrite: true
+
+  build-windows-arm64:
+    name: Windows (ARM64)
+    concurrency: ci-windows-arm64-${{ github.ref }}
+    runs-on: windows-11-arm
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Add MSBUILD to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build
+        run: |
+          cmake.exe -S . -B build
+          cd build
+          msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=ARM64
+
+      - name: Bundle
+        run: |
+          cd build\Release
+          tar.exe -a -c -f cythgfx.zip cythgfx.exe ..\..\examples
+
+      - name: Publish
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/Release/cythgfx.zip
+          asset_name: cythgfx-windows-arm64.zip
           tag: build-${{ github.sha }}
           overwrite: true
