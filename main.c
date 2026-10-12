@@ -354,7 +354,8 @@ int main(int argc, char **argv) {
     "int MOUSE_BUTTON_BACK    = 6\n");
 
   if (argc < 2) {
-    printf("error: provide a path to the source file to run\n");
+    printf("usage: cythgfx <input_file>\n\n"
+           "A graphical example program that embeds the Cyth programming language and Raylib.\n");
 
     cyth_destroy(vm);
     return -1;

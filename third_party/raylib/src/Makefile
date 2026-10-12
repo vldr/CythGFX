@@ -266,7 +266,7 @@ endif
 
 # Define default C compiler and archiver to pack library: CC, AR
 #------------------------------------------------------------------------------------------------
-CC = gcc
+CC ?= gcc
 AR = ar
 
 ifeq ($(TARGET_PLATFORM),PLATFORM_DESKTOP_GLFW)

@@ -1,0 +1,158 @@
+name: Build and Deploy
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-linux:
+    name: Linux (x64)
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+
+      - name: Setup dependencies
+        run: |
+          sudo apt update
+          sudo apt install build-essential libx11-dev libgl-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+  
+      - name: Build Raylib
+        run: |
+          cd third_party/raylib/src
+          make clean
+          make CC="zig cc -target x86_64-linux-gnu.2.9 -idirafter /usr/include" AR="zig ar" PLATFORM=PLATFORM_DESKTOP RAYLIB_LIBTYPE=STATIC -j4
+
+      - name: Build Cyth
+        run: |
+          cd third_party/cyth
+          cp src/include/cyth.h .
+          zig cc third_party/mir/mir.c \
+                 third_party/mir/mir-gen.c \
+                 third_party/bdwgc/extra/gc.c \
+                 src/jit.c \
+                 src/checker.c \
+                 src/environment.c \
+                 src/memory.c \
+                 src/lexer.c \
+                 src/map.c \
+                 src/parser.c \
+                 -Ithird_party/mir \
+                 -Ithird_party/bdwgc/include \
+                 -fsigned-char \
+                 -O3 \
+                 -s \
+                 -target x86_64-linux-gnu.2.5 \
+                 -Wa,-mrelax-relocations=no \
+                 -c \
+                 -o cyth.o
+          zig ar rcs libcyth.a cyth.o
+
+      - name: Build CythGFX
+        run: |
+          zig cc -target x86_64-linux-gnu.2.9 main.c \
+                 -Ithird_party/raylib/src \
+                 -Lthird_party/raylib/src \
+                 -Ithird_party/cyth \
+                 -Lthird_party/cyth \
+                 -L/usr/lib \
+                 -L/usr/lib/x86_64-linux-gnu \
+                 -Wl,-Bstatic -lraylib -lcyth \
+                 -Wl,-Bdynamic  -lGL -lX11 -lm -lpthread -ldl -lrt \
+                 -O3 -flto \
+                 -s \
+                 -o cythgfx
+      
+      - name: Bundle
+        run: |
+          zip cythgfx.zip cythgfx
+      
+      - name: Publish
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: cythgfx.zip
+          asset_name: cythgfx-linux-x86_64.zip
+          tag: build-${{ github.sha }}
+          overwrite: true
+
+  build-linux-arm64:
+    name: Linux (ARM64)
+    concurrency: ci-arm64-${{ github.ref }}
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+
+      - name: Setup dependencies
+        run: |
+          sudo apt update
+          sudo apt install build-essential libx11-dev libgl-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+  
+      - name: Build Raylib
+        run: |
+          cd third_party/raylib/src
+          make clean
+          make CC="zig cc -target aarch64-linux-gnu.2.17 -idirafter /usr/include" AR="zig ar" PLATFORM=PLATFORM_DESKTOP RAYLIB_LIBTYPE=STATIC -j4
+
+      - name: Build Cyth
+        run: |
+          cd third_party/cyth
+          cp src/include/cyth.h .
+          zig cc third_party/mir/mir.c \
+                 third_party/mir/mir-gen.c \
+                 third_party/bdwgc/extra/gc.c \
+                 src/jit.c \
+                 src/checker.c \
+                 src/environment.c \
+                 src/memory.c \
+                 src/lexer.c \
+                 src/map.c \
+                 src/parser.c \
+                 -Ithird_party/mir \
+                 -Ithird_party/bdwgc/include \
+                 -fsigned-char \
+                 -O3 \
+                 -s \
+                 -target aarch64-linux-gnu.2.17 \
+                 -c \
+                 -o cyth.o
+          zig ar rcs libcyth.a cyth.o
+
+      - name: Build CythGFX
+        run: |
+          zig cc -target aarch64-linux-gnu.2.17 main.c \
+                 -Ithird_party/raylib/src \
+                 -Lthird_party/raylib/src \
+                 -Ithird_party/cyth \
+                 -Lthird_party/cyth \
+                 -L/usr/lib \
+                 -L/usr/lib/x86_64-linux-gnu \
+                 -Wl,-Bstatic -lraylib -lcyth \
+                 -Wl,-Bdynamic  -lGL -lX11 -lm -lpthread -ldl -lrt \
+                 -O3 -flto \
+                 -s \
+                 -o cythgfx
+      
+      - name: Bundle
+        run: |
+          zip cythgfx.zip cythgfx
+      
+      - name: Publish
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: cythgfx.zip
+          asset_name: cythgfx-linux-arm64.zip
+          tag: build-${{ github.sha }}
+          overwrite: true
