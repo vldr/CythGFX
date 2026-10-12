@@ -174,7 +174,7 @@ jobs:
       - name: Bundle (ARM64)
         run: |
           cd build
-          mv ../examples .
+          cp -r ../examples ./
           zip -r cythgfx.zip cythgfx examples/
 
       - name: Publish (ARM64)
@@ -199,7 +199,7 @@ jobs:
       - name: Bundle (x64)
         run: |
           cd build
-          mv ../examples .
+          cp -r ../examples ./
           zip -r cythgfx.zip cythgfx examples/
 
       - name: Publish (x64)
@@ -231,7 +231,7 @@ jobs:
       - name: Bundle
         run: |
           cd build\Release
-          move ..\examples .
+          move ..\..\examples .
           tar.exe -a -c -f cythgfx.zip cythgfx.exe examples
 
       - name: Publish
@@ -263,7 +263,7 @@ jobs:
       - name: Bundle
         run: |
           cd build\Release
-          move ..\examples .
+          move ..\..\examples .
           tar.exe -a -c -f cythgfx.zip cythgfx.exe examples
 
       - name: Publish
