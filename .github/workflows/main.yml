@@ -137,7 +137,7 @@ jobs:
                  -Ithird_party/cyth \
                  -Lthird_party/cyth \
                  -L/usr/lib \
-                 -L/usr/lib/x86_64-linux-gnu \
+                 -L/usr/lib/aarch64-linux-gnu \
                  -Wl,-Bstatic -lraylib -lcyth \
                  -Wl,-Bdynamic  -lGL -lX11 -lm -lpthread -ldl -lrt \
                  -O3 -flto \
