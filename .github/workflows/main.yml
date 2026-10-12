@@ -72,7 +72,8 @@ jobs:
       
       - name: Bundle
         run: |
-           zip -r cythgfx.zip cythgfx ../examples/
+           mv ../examples .
+           zip -r cythgfx.zip cythgfx examples/
       
       - name: Publish
         uses: svenstaro/upload-release-action@v2
@@ -146,7 +147,8 @@ jobs:
       
       - name: Bundle
         run: |
-           zip -r cythgfx.zip cythgfx ../examples/
+           mv ../examples .
+           zip -r cythgfx.zip cythgfx examples/
       
       - name: Publish
         uses: svenstaro/upload-release-action@v2
@@ -174,7 +176,8 @@ jobs:
       - name: Bundle (ARM64)
         run: |
           cd build
-          zip -r cythgfx.zip cythgfx ../examples/
+          mv ../examples .
+          zip -r cythgfx.zip cythgfx examples/
 
       - name: Publish (ARM64)
         uses: svenstaro/upload-release-action@v2
@@ -198,7 +201,8 @@ jobs:
       - name: Bundle (x64)
         run: |
           cd build
-          zip -r cythgfx.zip cythgfx ../examples/
+          mv ../examples .
+          zip -r cythgfx.zip cythgfx examples/
 
       - name: Publish (x64)
         uses: svenstaro/upload-release-action@v2
@@ -229,7 +233,8 @@ jobs:
       - name: Bundle
         run: |
           cd build\Release
-          tar.exe -a -c -f cythgfx.zip cythgfx.exe ..\..\examples
+          move ..\examples .
+          tar.exe -a -c -f cythgfx.zip cythgfx.exe examples
 
       - name: Publish
         uses: svenstaro/upload-release-action@v2
@@ -260,7 +265,8 @@ jobs:
       - name: Bundle
         run: |
           cd build\Release
-          tar.exe -a -c -f cythgfx.zip cythgfx.exe ..\..\examples
+          move ..\examples .
+          tar.exe -a -c -f cythgfx.zip cythgfx.exe examples
 
       - name: Publish
         uses: svenstaro/upload-release-action@v2
