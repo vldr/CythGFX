@@ -167,7 +167,7 @@ jobs:
 
       - name: Build (ARM64)
         run: |
-          cmake -DCMAKE_OSX_ARCHITECTURES="arm64" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -S . -B build
+          cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 -DCMAKE_OSX_ARCHITECTURES="arm64" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -S . -B build
           cd build
           make -j3
 
@@ -192,7 +192,7 @@ jobs:
         
       - name: Build (x64)
         run: |
-          cmake -DCMAKE_OSX_ARCHITECTURES="x86_64" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -S . -B build
+          cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 -DCMAKE_OSX_ARCHITECTURES="x86_64" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -S . -B build
           cd build
           make -j3
 
@@ -226,7 +226,7 @@ jobs:
         run: |
           cmake.exe -S . -B build
           cd build
-          msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=x64
+          msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=x64 -property:RuntimeLibrary=MultiThreaded
         
       - name: Bundle
         run: |
@@ -258,7 +258,7 @@ jobs:
         run: |
           cmake.exe -S . -B build
           cd build
-          msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=ARM64
+          msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=ARM64 -property:RuntimeLibrary=MultiThreaded
 
       - name: Bundle
         run: |
