@@ -3,7 +3,7 @@ A graphical example program that embeds the [Cyth](https://github.com/vldr/Cyth)
 
 <img src="splash.png" style="width:500px;">
 
-## Binaries
+# Binaries
 
 Precompiled binaries are available in [Releases](https://github.com/vldr/CythGFX/releases/latest).
 
