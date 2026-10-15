@@ -43,32 +43,34 @@ static void size(CyString* title, int width, int height) {
   InitWindow(width, height, title->data);
 }
 
-static void fill(int r, int g, int b) {
-  fillColor.r = r;
-  fillColor.g = g;
-  fillColor.b = b;
-  fillColor.a = 255;
-}
-
-static void fill2(int r, int g, int b, int a) {
+static void fill(int r, int g, int b, int a) {
   fillColor.r = r;
   fillColor.g = g;
   fillColor.b = b;
   fillColor.a = a;
 }
 
-static void stroke(int r, int g, int b) {
-  strokeColor.r = r;
-  strokeColor.g = g;
-  strokeColor.b = b;
-  strokeColor.a = 255;
+static void fill2(int r, int g, int b) {
+  fill(r, g, b, 255);
 }
 
-static void stroke2(int r, int g, int b, int a) {
+static void fill3(int rgba) {
+  fill(rgba >> 24 & 0xFF, rgba >> 16 & 0xFF, rgba >> 8 & 0xFF, rgba & 0xFF);
+}
+
+static void stroke(int r, int g, int b, int a) {
   strokeColor.r = r;
   strokeColor.g = g;
   strokeColor.b = b;
   strokeColor.a = a;
+}
+
+static void stroke2(int r, int g, int b) {
+  stroke(r, g, b, 255);
+}
+
+static void stroke3(int rgba) {
+  stroke(rgba >> 24 & 0xFF, rgba >> 16 & 0xFF, rgba >> 8 & 0xFF, rgba & 0xFF);
 }
 
 static void rect(int x, int y, int width, int height) {
@@ -144,6 +146,7 @@ static int getTime(void) {
 
 static void setTraceCallback(TraceFunc func) {
   traceFunc = func;
+  SetTraceLogLevel(LOG_INFO);
 }
 
 static void traceCallback(int logLevel, const char *text, va_list args) {
@@ -164,18 +167,57 @@ static void traceCallback(int logLevel, const char *text, va_list args) {
   traceFunc(logLevel, message);  
 }
 
+static const char* parseArgs(CyVM* vm, int argc, char **argv) {
+  if (argc < 2) {
+    printf("usage: cythgfx <input_file>\n\n");
+    printf("Available options are:\n"
+           "  -l Print IR.\n");
+
+    return NULL;
+  }
+
+  const char* filename = NULL;
+  
+  for (int arg = 1; arg < argc; arg++) {
+    if (strcmp(argv[arg], "-l") == 0) {
+      cyth_set_logging(vm, true);
+    } else {
+      if (argv[arg][0] != '-') {
+        if (filename == NULL) {
+          filename = argv[arg];
+        } else {
+          fprintf(stderr, "error: unknown non-option: '%s'\n", argv[arg]);
+          return NULL;
+        }
+      } else {
+        fprintf(stderr, "error: unknown option: '%s'\n", argv[arg]);
+        return NULL;
+      }
+    }
+  }
+
+  if (!filename) {
+    fprintf(stderr, "error: no input file provided\n");
+    return NULL;
+  }
+
+  return filename;
+}
+
 int main(int argc, char **argv) {
   SetConfigFlags(FLAG_VSYNC_HINT);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  SetTraceLogCallback(traceCallback);
+  SetTraceLogLevel(LOG_WARNING);
 
   CyVM* vm = cyth_init();
   cyth_load_function(vm, "void size(string title, int width, int height)", (uintptr_t)size);
   cyth_load_function(vm, "void clear()", (uintptr_t)clear);
-  cyth_load_function(vm, "void fill(int r, int g, int b)", (uintptr_t)fill);
-  cyth_load_function(vm, "void fill(int r, int g, int b, int a)", (uintptr_t)fill2);
-  cyth_load_function(vm, "void stroke(int r, int g, int b)", (uintptr_t)stroke);
-  cyth_load_function(vm, "void stroke(int r, int g, int b, int a)", (uintptr_t)stroke2);
+  cyth_load_function(vm, "void fill(int r, int g, int b, int a)", (uintptr_t)fill);
+  cyth_load_function(vm, "void fill(int r, int g, int b)", (uintptr_t)fill2);
+  cyth_load_function(vm, "void fill(int rgba)", (uintptr_t)fill3);
+  cyth_load_function(vm, "void stroke(int r, int g, int b, int a)", (uintptr_t)stroke);
+  cyth_load_function(vm, "void stroke(int r, int g, int b)", (uintptr_t)stroke2);
+  cyth_load_function(vm, "void stroke(int rgba)", (uintptr_t)stroke3);
   cyth_load_function(vm, "void rect(int x, int y, int width, int height)", (uintptr_t)rect);
   cyth_load_function(vm, "void circle(int x, int y, int radius)", (uintptr_t)circle);
   cyth_load_function(vm, "void line(int x0, int y0, int x1, int y1)", (uintptr_t)line);
@@ -351,17 +393,42 @@ int main(int argc, char **argv) {
     "int MOUSE_BUTTON_SIDE    = 3\n"
     "int MOUSE_BUTTON_EXTRA   = 4\n"
     "int MOUSE_BUTTON_FORWARD = 5\n"
-    "int MOUSE_BUTTON_BACK    = 6\n");
+    "int MOUSE_BUTTON_BACK    = 6\n"
 
-  if (argc < 2) {
-    printf("usage: cythgfx <input_file>\n");
+    "int LIGHTGRAY  = 0xC8C8C8FF\n"
+    "int GRAY       = 0x828282FF\n"
+    "int DARKGRAY   = 0x505050FF\n"
+    "int YELLOW     = 0xFDF900FF\n"
+    "int GOLD       = 0xFFCB00FF\n"
+    "int ORANGE     = 0xFFA100FF\n"
+    "int PINK       = 0xFF6DC2FF\n"
+    "int RED        = 0xE62937FF\n"
+    "int MAROON     = 0xBE2137FF\n"
+    "int GREEN      = 0x00E430FF\n"
+    "int LIME       = 0x009E2FFF\n"
+    "int DARKGREEN  = 0x00752CFF\n"
+    "int SKYBLUE    = 0x66BFFFFF\n"
+    "int BLUE       = 0x0079F1FF\n"
+    "int DARKBLUE   = 0x0052ACFF\n"
+    "int PURPLE     = 0xC87AFFFF\n"
+    "int VIOLET     = 0x873CBEFF\n"
+    "int DARKPURPLE = 0x701F7EFF\n"
+    "int BEIGE      = 0xD3B083FF\n"
+    "int BROWN      = 0x7F6A4FFF\n"
+    "int DARKBROWN  = 0x4C3F2FFF\n"
+    "int WHITE      = 0xFFFFFFFF\n"
+    "int BLACK      = 0x000000FF\n"
+    "int BLANK      = 0x00000000\n"
+    "int MAGENTA    = 0xFF00FFFF\n");
 
+  const char* filename = parseArgs(vm, argc, argv);
+  if (!filename) {
     cyth_destroy(vm);
     return -1;
   }
 
-  if (!cyth_load_file(vm, argv[1])) {
-    printf("error: failed to load source file: %s\n", argv[1]);
+  if (!cyth_load_file(vm, filename)) {
+    fprintf(stderr, "error: failed to load file: %s\n", filename);
 
     cyth_destroy(vm);
     return -1;

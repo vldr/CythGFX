@@ -155,11 +155,11 @@ void drawTriangle()
   float x2 = x + (px2 * cosA - py2 * sinA)
   float y2 = y + (px2 * sinA + py2 * cosA)
 
-  fill(255, 0, 0)
+  fill(RED)
   triangle((int)x0, (int)y0, (int)x1, (int)y1, (int)x2, (int)y2)
 
 void drawControlPoints()
-  fill(255, 255, 255)
+  fill(WHITE)
 
   for Vector4 controlPoint in controlPoints
     int x = (int)(controlPoint.x * (WIDTH / 2) + WIDTH / 2)

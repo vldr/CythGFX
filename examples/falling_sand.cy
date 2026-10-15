@@ -36,11 +36,11 @@ void draw(int time)
         addCell((int)cellX, (int)cellY + 1)
     
     if not hasInteracted
-      fill(255, 255, 255)
+      fill(WHITE)
       text(hint, (windowWidth - 1 - fontSize.width) / 2, (windowHeight - 1 - fontSize.height) / 2, 18)
       return
  
-    fill(0, 0, 0)
+    fill(BLACK)
     clear()
     render()
     nextGeneration()
@@ -129,7 +129,7 @@ void render()
         int[] rgb = hsvToRgb(cells[x][y] / (float)windowWidth, 1.0, 1.0)
         fill(rgb[0], rgb[1], rgb[2])
       else
-        fill(0, 0, 0)
+        fill(BLACK)
       
       int cx = windowWidth / width
       int cy = windowHeight / height

@@ -54,7 +54,7 @@ void draw()
   fill(32, 30, 24)
   clear()
 
-  fill(255, 255, 255)
+  fill(WHITE)
   float segmentLength = (float)height / (float)NET_COUNT
 
   for int i = 0; i < NET_COUNT; i += 1

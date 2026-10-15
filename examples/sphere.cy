@@ -56,7 +56,6 @@ rotatedList.reserve(sphereList.length)
 
 setTraceCallback(traceLog)
 size("Sphere", 640, 640)
-fill(0, 0, 0)
 
 Image img = Image(640, 640)
 
@@ -66,7 +65,7 @@ void draw(int time)
     while theta > PI*2
       theta -= PI*2
 
-  fill(0, 0, 0)
+  fill(BLACK)
   img.clear()
 
   keyPressed()
@@ -105,7 +104,7 @@ void drawSettings()
     "FPS: " + lastFps
   )
 
-  fill(255, 255, 255)
+  fill(WHITE)
   text(msg, 5, 5, 18)
 
 void keyPressed()

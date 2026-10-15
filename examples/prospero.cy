@@ -1,7 +1,7 @@
 int SIZE = 512
 
 size("Prospero", SIZE, SIZE)
-fill(255, 255, 255)
+fill(WHITE)
 
 Image img = Image(SIZE, SIZE)
 int index
