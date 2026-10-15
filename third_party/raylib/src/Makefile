@@ -234,7 +234,7 @@ endif
 # Define raylib graphics api depending on selected platform
 # NOTE: By default use OpenGL 3.3 on desktop platforms
 ifeq ($(TARGET_PLATFORM),PLATFORM_DESKTOP_GLFW)
-    GRAPHICS ?= GRAPHICS_API_OPENGL_33
+    GRAPHICS ?= GRAPHICS_API_OPENGL_21
     #GRAPHICS = GRAPHICS_API_OPENGL_11      # Uncomment to use OpenGL 1.1
     #GRAPHICS = GRAPHICS_API_OPENGL_21      # Uncomment to use OpenGL 2.1
     #GRAPHICS = GRAPHICS_API_OPENGL_43      # Uncomment to use OpenGL 4.3

@@ -3,6 +3,10 @@ A graphical example program that embeds the [Cyth](https://github.com/vldr/Cyth)
 
 <img src="splash.png" style="width:500px;">
 
+## Binaries
+
+Precompiled binaries are available in [Releases](https://github.com/vldr/CythGFX/releases/latest).
+
 # Building
 
 To build, you will need to have [CMake](https://cmake.org/) and gcc/clang/MSVC installed. 
