@@ -224,7 +224,7 @@ jobs:
   
       - name: Build
         run: |
-          cmake.exe -S . -B build
+          cmake.exe -S . -B build -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
           cd build
           msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=x64 -property:RuntimeLibrary=MultiThreaded
         
@@ -256,7 +256,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake.exe -S . -B build
+          cmake.exe -S . -B build -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
           cd build
           msbuild cythgfx.vcxproj -t:rebuild -property:Configuration=Release -property:Platform=ARM64 -property:RuntimeLibrary=MultiThreaded
 
