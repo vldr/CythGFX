@@ -54,16 +54,16 @@ void addCell(int x, int y)
 void nextGeneration()
   int[][] newCells
 
-  for int x = 0; x < width; x += 1
+  for int x = 0; x < width; x++
     int[] row
 
-    for int y = 0; y < height; y += 1
+    for int y = 0; y < height; y++
       row.push(0)
 
     newCells.push(row)
 
-  for int x = 0; x < width; x += 1
-    for int y = 0; y < height; y += 1
+  for int x = 0; x < width; x++
+    for int y = 0; y < height; y++
       int value = cells[x][y]
       if value
         if y + 1 < height and not cells[x][y + 1]
@@ -123,8 +123,8 @@ void render()
 
     return rgb
 
-  for int x = 0; x < width; x += 1
-    for int y = 0; y < height; y += 1
+  for int x = 0; x < width; x++
+    for int y = 0; y < height; y++
       if cells[x][y]
         int[] rgb = hsvToRgb(cells[x][y] / (float)windowWidth, 1.0, 1.0)
         fill(rgb[0], rgb[1], rgb[2])

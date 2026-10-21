@@ -123,14 +123,14 @@ void draw(int time)
     else
         keypad[it] = 0
 
-  for int i = 0; i < 10; i += 1
+  for int i = 0; i < 10; i++
     cycle(time)
 
   if drawing
     drawing = false
 
-    for int y = 0; y < img.height; y += 1
-      for int x = 0; x < img.width; x += 1
+    for int y = 0; y < img.height; y++
+      for int x = 0; x < img.width; x++
         int i = (x / 10) + (y / 10) * (img.width / 10)
         char color = display[i] ? (char)0xFF : (char)0x00
 
@@ -157,10 +157,10 @@ void cycle(int time)
 
   if time - lastTime > 16
     if delayTimer > 0
-      delayTimer -= 1
+      delayTimer--
 
     if soundTimer > 0
-      soundTimer -= 1
+      soundTimer--
     lastTime = time
 
 void op0(int opcode)
@@ -169,7 +169,7 @@ void op0(int opcode)
     drawing = true
     pc += 2
   else if opcode == 0x00EE
-    sp -= 1
+    sp--
     pc = stack[sp]
     pc += 2
 
@@ -178,7 +178,7 @@ void op1(int opcode)
 
 void op2(int opcode)
   stack[sp] = pc
-  sp += 1
+  sp++
   pc = opcode & 0x0FFF
 
 void op3(int opcode)
@@ -306,9 +306,9 @@ void opD(int opcode)
   int wt = 8
   V[0xF] = (char)0
 
-  for int i = 0; i < ht; i += 1
+  for int i = 0; i < ht; i++
     int pixel = (int)memory[I + i]
-    for int j = 0; j < wt; j += 1
+    for int j = 0; j < wt; j++
       if pixel & (0x80 >> j)
         int index = ((x + j) + ((y + i) * 64)) % 2048
         if display[index]
@@ -342,7 +342,7 @@ void opF(int opcode)
 
   else if val == 0x0A
     bool keyPressed = false
-    for int i = 0; i < 16; i += 1
+    for int i = 0; i < 16; i++
       if keypad[i]
         keyPressed = true
         V[reg] = (char)i
@@ -379,13 +379,13 @@ void opF(int opcode)
     pc += 2
 
   else if val == 0x55
-    for int i = 0; i <= reg; i += 1
+    for int i = 0; i <= reg; i++
       memory[I + i] = V[i]
     I = (I + reg + 1) & 0xFFFF
     pc += 2
 
   else if val == 0x65
-    for int i = 0; i <= reg; i += 1
+    for int i = 0; i <= reg; i++
       V[i] = memory[I + i]
     I = (I + reg + 1) & 0xFFFF
     pc += 2

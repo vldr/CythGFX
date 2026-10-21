@@ -105,7 +105,7 @@ void drawSpline()
   for int index = 0; index < controlPoints.length; index += splineType == SPLINE_BEZIER ? 3 : 1
     Vector4 previousPosition
 
-    for int x = 0; x <= SPLINE_SUBDIVISIONS; x += 1
+    for int x = 0; x <= SPLINE_SUBDIVISIONS; x++
       float t = (float)x / SPLINE_SUBDIVISIONS
       Vector4 position = spline(index, t, false)
 

@@ -75,7 +75,7 @@ void draw(int time)
   img.draw()
   drawSettings()
 
-  fps += 1
+  fps++
 
   if time - lastTime >= 1000
     lastFps = fps
@@ -186,8 +186,8 @@ Triangle[] makeSphere(int radius, int divisions)
     Vector3[][] sphereVerticies
     sphereVerticies.reserve(divisions + 1, divisions + 1)
     
-    for int i = 0; i <= divisions; i += 1
-      for int j = 0; j <= divisions; j += 1
+    for int i = 0; i <= divisions; i++
+      for int j = 0; j <= divisions; j++
         float v = (PI / divisions) * i
         float u = (TWO_PI / divisions) * j
         
@@ -201,18 +201,18 @@ Triangle[] makeSphere(int radius, int divisions)
     triangles.reserve((divisions * divisions) + (divisions * divisions))
     int count = 0
    
-    for int verticalOffset = 0; verticalOffset < divisions; verticalOffset += 1
-      for int horizontalOffset = 0; horizontalOffset < divisions; horizontalOffset += 1
+    for int verticalOffset = 0; verticalOffset < divisions; verticalOffset++
+      for int horizontalOffset = 0; horizontalOffset < divisions; horizontalOffset++
         Vector3 v1 = sphereVerticies[verticalOffset][horizontalOffset]
         Vector3 v2 = sphereVerticies[verticalOffset][(horizontalOffset + 1)]
         Vector3 v3 = sphereVerticies[(verticalOffset + 1)][(horizontalOffset + 1)]
         Vector3 v4 = sphereVerticies[(verticalOffset + 1)][horizontalOffset]
     
         triangles[count] = Triangle(v1, v4, v3)
-        count += 1
+        count++
 
         triangles[count] = Triangle(v1, v3, v2)
-        count += 1
+        count++
 
     return triangles
 
@@ -346,8 +346,8 @@ void fillTriangle(Triangle t, int shading)
   float Ymin = min(t.pv1.y, t.pv2.y, t.pv3.y)
   float Ymax = max(t.pv1.y, t.pv2.y, t.pv3.y)
     
-  for int y = (int)Ymin; y <= (int)Ymax; y += 1
-      for int x = (int)Xmin; x <= (int)Xmax; x += 1
+  for int y = (int)Ymin; y <= (int)Ymax; y++
+      for int x = (int)Xmin; x <= (int)Xmax; x++
         Vector2 P = Vector2((float)x, (float)y)
         Vector2 E1 = t.pv2 - t.pv1
         Vector2 E2 = t.pv3 - t.pv2
@@ -450,7 +450,7 @@ void bresLine(int fromX, int fromY, int toX, int toY)
         
         if (error >= 0.5)
           Y += stepY
-          error -= 1
+          error--
         
   else
     float slope = abs(deltaX / deltaY)
@@ -464,10 +464,10 @@ void bresLine(int fromX, int fromY, int toX, int toY)
         
         if error >= 0.5
           X += stepX
-          error -= 1
+          error--
 
 void rotateSphere(Triangle[] original, Triangle[] rotated, float theta)
-  for int i = 0; i < original.length; i += 1
+  for int i = 0; i < original.length; i++
     if not rotated[i]
       rotated[i] = setupTriangle(Triangle(original[i].v1, original[i].v2, original[i].v3))
     else

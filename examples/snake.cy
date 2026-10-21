@@ -38,7 +38,7 @@ class Game
     delta -= (float)deltaTicks
     lastTime = time
 
-    for int i = 0; i < deltaTicks; i += 1
+    for int i = 0; i < deltaTicks; i++
       snake.update()
       apple.update()
 
@@ -46,8 +46,8 @@ class Game
     fill(0, 0, 0)
     clear()
 
-    for int x = 0; x < width; x += 1
-      for int y = 0; y < height; y += 1
+    for int x = 0; x < width; x++
+      for int y = 0; y < height; y++
         int color = 30
         if (x + y) % 2 == 0
           color = 20
@@ -142,17 +142,17 @@ class Snake
       
       dead = false
   
-    for int i = 0; i < body.length; i += 1
+    for int i = 0; i < body.length; i++
       oldBody[i].x = body[i].x
       oldBody[i].y = body[i].y
 
-    for int i = body.length - 1; i > 0; i -= 1
+    for int i = body.length - 1; i > 0; i--
       if body[i] == body[0]
         game.apple.hue = 0.0
         dead = true
         return
 
-    for int i = body.length - 1; i > 0; i -= 1
+    for int i = body.length - 1; i > 0; i--
       body[i].x = body[i - 1].x
       body[i].y = body[i - 1].y
 
@@ -173,7 +173,7 @@ class Snake
       body[0].y = 0
 
   void draw()
-    for int i = 0; i < body.length; i += 1
+    for int i = 0; i < body.length; i++
       if dead
         fill(100, 100, 100)
       else if i == 0

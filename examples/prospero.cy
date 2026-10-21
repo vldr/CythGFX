@@ -6,8 +6,8 @@ fill(WHITE)
 Image img = Image(SIZE, SIZE)
 int index
 
-for int y = 0; y < SIZE; y += 1
-  for int x = 0; x < SIZE; x += 1
+for int y = 0; y < SIZE; y++
+  for int x = 0; x < SIZE; x++
     float px = x / (SIZE / 2.0) - 1.0
     float py = y / (SIZE / 2.0) - 1.0
 

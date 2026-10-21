@@ -42,8 +42,8 @@ class Raytracer
   void render()
     int index
     
-    for int y; y < height; y += 1
-      for int x; x < width; x += 1
+    for int y; y < height; y++
+      for int x; x < width; x++
         float u = (float)x / (float)width - 0.5
         float v = (float)(height - y) / (float)height - 0.5 
         
@@ -65,7 +65,7 @@ class Raytracer
     HitRecord closestHit = HitRecord(-1.0, Vector3(), Vector3(), null)
     float closestSoFar = 10000 
 
-    for int i = 0; i < spheres.length; i += 1
+    for int i = 0; i < spheres.length; i++
       HitRecord rec = spheres[i].hit(ray, 0.001, closestSoFar)
       if rec.t > 0
         closestSoFar = rec.t
@@ -82,13 +82,13 @@ class Raytracer
     Vector3 finalColor = rec.material.color.scale(rec.material.ambient)
     Vector3 viewDir = (ray.origin - rec.p).normalize()
 
-    for int i = 0; i < lights.length; i += 1
-      Vector3 lightDir = (lights[i].position - rec.p).normalize()
+    for Light light in lights
+      Vector3 lightDir = (light.position - rec.p).normalize()
       
       Ray shadowRay = Ray(rec.p, lightDir)
       bool inShadow = false
-      for int j = 0; j < spheres.length; j += 1
-        HitRecord shadowRec = spheres[j].hit(shadowRay, 0.001, 10000.0)
+      for Sphere sphere in spheres
+        HitRecord shadowRec = sphere.hit(shadowRay, 0.001, 10000.0)
         if shadowRec.t > 0
           inShadow = true
           break 
@@ -99,7 +99,7 @@ class Raytracer
         
         Vector3 reflectDir = lightDir.scale(-1) - rec.normal.scale(2 * lightDir.scale(-1).dot(rec.normal))
         float spec = pow(max(0.0, reflectDir.dot(viewDir)), rec.material.shininess)
-        Vector3 specular = lights[i].color.scale(spec * rec.material.specular)
+        Vector3 specular = light.color.scale(spec * rec.material.specular)
 
         finalColor = finalColor + diffuse + specular
     

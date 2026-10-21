@@ -57,7 +57,7 @@ void draw()
   fill(WHITE)
   float segmentLength = (float)height / (float)NET_COUNT
 
-  for int i = 0; i < NET_COUNT; i += 1
+  for int i = 0; i < NET_COUNT; i++
     if i % 2 == 0
       rect(
         width / 2 - NET_GIRTH / 2,
@@ -121,7 +121,7 @@ int countDigits(int n)
 
   int count = 0
   while n > 0
-    count += 1
+    count++
     n /= 10
 
   return count
@@ -239,10 +239,10 @@ void update(float dt)
       ballDX = -ballDX
       ballX = rightX - (float)BALL_SIZE
   else if nextX < 0.0
-    scoreRight += 1
+    scoreRight++
     resetBall(1)
   else if nextX + (float)BALL_SIZE >= (float)width
-    scoreLeft += 1
+    scoreLeft++
     resetBall(-1)
   else
     ballX = nextX

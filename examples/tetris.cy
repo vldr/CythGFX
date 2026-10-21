@@ -36,7 +36,7 @@ class Tetris
     spawnPiece()
 
   void reset()
-    for int i = 0; i < board.length; i += 1
+    for int i = 0; i < board.length; i++
       board[i] = null
 
     score = 0
@@ -57,28 +57,28 @@ class Tetris
 
     if isKeyPressed(KEY_LEFT)
       if canPlace(currentPiece, pieceX - 1, pieceY, rotation)
-        pieceX -= 1
+        pieceX--
       leftRepeatAt = time + 160
     else if isKeyDown(KEY_LEFT)
       if leftRepeatAt == 0
         leftRepeatAt = time + 160
       else if time >= leftRepeatAt
         if canPlace(currentPiece, pieceX - 1, pieceY, rotation)
-          pieceX -= 1
+          pieceX--
         leftRepeatAt = time + 45
     else
       leftRepeatAt = 0
 
     if isKeyPressed(KEY_RIGHT)
       if canPlace(currentPiece, pieceX + 1, pieceY, rotation)
-        pieceX += 1
+        pieceX++
       rightRepeatAt = time + 160
     else if isKeyDown(KEY_RIGHT)
       if rightRepeatAt == 0
         rightRepeatAt = time + 160
       else if time >= rightRepeatAt
         if canPlace(currentPiece, pieceX + 1, pieceY, rotation)
-          pieceX += 1
+          pieceX++
         rightRepeatAt = time + 45
     else
       rightRepeatAt = 0
@@ -92,8 +92,8 @@ class Tetris
     if isKeyPressed(KEY_SPACE)
       int dropped
       while canPlace(currentPiece, pieceX, pieceY + 1, rotation)
-        pieceY += 1
-        dropped += 1
+        pieceY++
+        dropped++
 
       score += dropped * 2
       lockPiece()
@@ -116,7 +116,7 @@ class Tetris
       lastFallTime = time
 
       if canPlace(currentPiece, pieceX, pieceY + 1, rotation)
-        pieceY += 1
+        pieceY++
       else
         lockPiece()
 
@@ -130,8 +130,8 @@ class Tetris
     drawSidebar()
 
   void drawBoard()
-    for int y = 0; y < boardHeight; y += 1
-      for int x = 0; x < boardWidth; x += 1
+    for int y = 0; y < boardHeight; y++
+      for int x = 0; x < boardWidth; x++
         int index = y * boardWidth + x
         int px = boardX + x * cellSize
         int py = boardY + y * cellSize
@@ -148,12 +148,12 @@ class Tetris
 
     int landingY = pieceY
     while canPlace(currentPiece, pieceX, landingY + 1, rotation)
-      landingY += 1
+      landingY++
 
     Color color = pieceColor(currentPiece)
 
-    for int y = 0; y < 4; y += 1
-      for int x = 0; x < 4; x += 1
+    for int y = 0; y < 4; y++
+      for int x = 0; x < 4; x++
         if cell(currentPiece, rotation, x, y)
           int boardCellX = pieceX + x
           int boardCellY = landingY + y
@@ -174,8 +174,8 @@ class Tetris
 
     Color color = pieceColor(currentPiece)
 
-    for int y = 0; y < 4; y += 1
-      for int x = 0; x < 4; x += 1
+    for int y = 0; y < 4; y++
+      for int x = 0; x < 4; x++
         if cell(currentPiece, rotation, x, y)
           int boardCellX = pieceX + x
           int boardCellY = pieceY + y
@@ -198,8 +198,8 @@ class Tetris
     text("Next shape:", panelX, 132, 18)
 
     Color nextColor = pieceColor(nextPiece)
-    for int y = 0; y < 4; y += 1
-      for int x = 0; x < 4; x += 1
+    for int y = 0; y < 4; y++
+      for int x = 0; x < 4; x++
         if cell(nextPiece, 0, x, y)
           int px = panelX + x * 20
           int py = 158 + y * 20
@@ -231,17 +231,17 @@ class Tetris
       return
 
     if canPlace(currentPiece, pieceX - 1, pieceY, newRotation)
-      pieceX -= 1
+      pieceX--
       rotation = newRotation
       return
 
     if canPlace(currentPiece, pieceX + 1, pieceY, newRotation)
-      pieceX += 1
+      pieceX++
       rotation = newRotation
 
   bool canPlace(any piece, int positionX, int positionY, int pieceRotation)
-    for int y = 0; y < 4; y += 1
-      for int x = 0; x < 4; x += 1
+    for int y = 0; y < 4; y++
+      for int x = 0; x < 4; x++
         if cell(piece, pieceRotation, x, y)
           int bx = positionX + x
           int by = positionY + y
@@ -257,8 +257,8 @@ class Tetris
   void lockPiece()
     Color color = pieceColor(currentPiece)
 
-    for int y = 0; y < 4; y += 1
-      for int x = 0; x < 4; x += 1
+    for int y = 0; y < 4; y++
+      for int x = 0; x < 4; x++
         if cell(currentPiece, rotation, x, y)
           int bx = pieceX + x
           int by = pieceY + y
@@ -277,27 +277,27 @@ class Tetris
   void clearLines()
     int cleared
 
-    for int y = boardHeight - 1; y >= 0; y -= 1
+    for int y = boardHeight - 1; y >= 0; y--
       bool full = true
 
-      for int x = 0; x < boardWidth; x += 1
+      for int x = 0; x < boardWidth; x++
         if not board[y * boardWidth + x]
           full = false
 
       if full
-        cleared += 1
+        cleared++
 
-        for int row = y; row > 0; row -= 1
-          for int x = 0; x < boardWidth; x += 1
+        for int row = y; row > 0; row--
+          for int x = 0; x < boardWidth; x++
             board[row * boardWidth + x] = board[(row - 1) * boardWidth + x]
 
-        for int x = 0; x < boardWidth; x += 1
+        for int x = 0; x < boardWidth; x++
           board[x] = null
 
-        y += 1
+        y++
 
     if cleared == 1
-      score += 100
+      score++
     else if cleared == 2
       score += 300
     else if cleared == 3

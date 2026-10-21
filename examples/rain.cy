@@ -90,13 +90,13 @@ size("Rain", screenWidth, screenHeight)
 
 RainDrop[] raindrops
 raindrops.reserve(RAINDROP_COUNT)
-for int i = 0; i< raindrops.length; i += 1
+for int i = 0; i< raindrops.length; i++
     raindrops[i] = RainDrop()
 
 RainRipple[] ripples
 ripples.reserve(RIPPLE_COUNT)
 
-for int i = 0; i < ripples.length; i += 1
+for int i = 0; i < ripples.length; i++
     ripples[i] = RainRipple()
 
 float time
@@ -128,7 +128,7 @@ void draw(int _)
         line((int)raindrop.x, (int)raindrop.y, (int)raindrop.x, (int)raindrop.y - (int)raindrop.length)
     
     int previousY = getWaterY(0, time)
-    for int x = 1; x < screenWidth; x += 1
+    for int x = 1; x < screenWidth; x++
         int y = getWaterY(x, time)
 
         stroke(64, 196, 255)
