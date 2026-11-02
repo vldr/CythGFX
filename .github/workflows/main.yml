@@ -59,6 +59,7 @@ jobs:
         run: |
           zig cc -target x86_64-linux-gnu.2.9 main.c \
                  -Ithird_party/raylib/src \
+                 -Ithird_party/raylib/src/external \
                  -Lthird_party/raylib/src \
                  -Ithird_party/cyth \
                  -Lthird_party/cyth \
@@ -133,6 +134,7 @@ jobs:
         run: |
           zig cc -target aarch64-linux-gnu.2.17 main.c \
                  -Ithird_party/raylib/src \
+                 -Ithird_party/raylib/src/external \
                  -Lthird_party/raylib/src \
                  -Ithird_party/cyth \
                  -Lthird_party/cyth \
