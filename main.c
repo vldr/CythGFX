@@ -1,8 +1,11 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <cyth.h>
 #include <string.h>
+#include <time.h>
+#include <glad.h>
 #include <raylib.h>
 #include <rlgl.h>
 
@@ -24,6 +27,122 @@ typedef void(*TraceFunc)(int, CyString* message);
 Color fillColor;
 Color strokeColor;
 TraceFunc traceFunc;
+
+static void setShader(int shader) { glUseProgram(shader); }
+static int createShader(CyString* vertexSource, CyString* fragmentSource) {
+  return LoadShaderFromMemory(vertexSource->data, fragmentSource->data).id; 
+}
+
+static int getUniformLocation(int shader, CyString* name) { return glGetUniformLocation(shader, name->data); }
+static void setUniformFloat(int uniform, float a) { glUniform1f(uniform, a); }
+static void setUniformVec2(int uniform, float x, float y) { glUniform2f(uniform, x, y); }
+static void setUniformVec3(int uniform, float x, float y, float z) { glUniform3f(uniform, x, y, z); }
+static void setUniformVec4(int uniform, float x, float y, float z, float w) { glUniform4f(uniform, x, y, z, w); }
+static void setUniformMatrix4(int uniform, CyArray* array) { 
+  if (array->size == 16) 
+    glUniformMatrix4fv(uniform, 1, GL_FALSE, array->data); 
+}
+
+static int getAttributeLocation(int shader, CyString* name) { return glGetAttribLocation(shader, name->data); }
+static void setVertexAttributeFloat(int attribute, float x) { glVertexAttrib1f(attribute, x); }
+static void setVertexAttributeVec2(int attribute, float x, float y) { glVertexAttrib2f(attribute, x, y); }
+static void setVertexAttributePointer(int attribute, int size, int stride, int offset) {
+  glEnableVertexAttribArray(attribute);
+  glVertexAttribPointer(attribute, size, GL_FLOAT, GL_FALSE, stride, (const void*)(intptr_t)offset);
+}
+
+static void bindVertexArray(int vao) { glBindVertexArray(vao); }
+static void bindArrayBuffer(int buffer) { glBindBuffer(GL_ARRAY_BUFFER, buffer); }
+static void drawVertexArray(int offset, int count) { glDrawArrays(GL_TRIANGLES, offset, count); }
+static void drawVertexArrayLines(int count) { glDrawArrays(GL_LINES, 0, count); }
+static void clearColor(void) { glClear(GL_COLOR_BUFFER_BIT); }
+static void clearDepth(void) { glClear(GL_DEPTH_BUFFER_BIT); }
+static void setClearColor(float r, float g, float b, float a) { glClearColor(r, g, b, a); }
+static void setColorMask(bool r, bool g, bool b, bool a) { glColorMask(r, g, b, a); }
+static void setDepthTest(bool enable) { (enable ? glEnable : glDisable)(GL_DEPTH_TEST); }
+static void setBackfaceCulling(bool enable) { (enable ? glEnable : glDisable)(GL_CULL_FACE); }
+static void setBlending(bool enable) { (enable ? glEnable : glDisable)(GL_BLEND); }
+static void setWireMode(bool wire) { glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL); }
+static void setTexture(int texture) { glBindTexture(GL_TEXTURE_2D, texture); }
+static void setViewport(int width, int height) { glViewport(0, 0, width, height); }
+
+static void updateTextureRegion(int texture, int x, int y, int width, int height, CyArray* data) {
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data->data);
+}
+
+static int createVertexArray(void) {
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+  return vao;
+}
+
+static int createArrayBuffer(void) {
+  GLuint buffer;
+  glGenBuffers(1, &buffer);
+  return buffer;
+}
+
+static void setArrayBufferData(int buffer, CyArray* array, int count) {
+  glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), array->data, GL_DYNAMIC_DRAW);
+}
+
+static void updateArrayBufferData(int buffer, CyArray* data, int count) {
+  glBufferSubData(GL_ARRAY_BUFFER, 0, count * sizeof(float), data->data);
+}
+
+static int createTexture(CyString* string) {
+  Image image = LoadImageFromMemory(".png", (unsigned char*)string->data, string->size);
+  Texture2D texture = LoadTextureFromImage(image);
+
+  UnloadImage(image);
+  return texture.id;
+}
+
+static int createTextureRegion(CyString* string, int x, int y, int width, int height) {
+  Image image = LoadImageFromMemory(".png", (unsigned char*)string->data, string->size);
+  
+  Rectangle cropRect = { x, y, width, height }; 
+  ImageCrop(&image, cropRect);
+
+  Texture2D texture = LoadTextureFromImage(image);
+  UnloadImage(image);
+
+  return texture.id;
+}
+
+static int createColorTexture(float r, float g, float b) {
+  unsigned char data[3];
+  data[0] = (unsigned char)(r * 255.0f);
+  data[1] = (unsigned char)(g * 255.0f);
+  data[2] = (unsigned char)(b * 255.0f);
+
+  return LoadTextureFromImage((Image) {data, 1, 1, true, PIXELFORMAT_UNCOMPRESSED_R8G8B8}).id;
+}
+
+static float getMouseWheelF(void) {
+  return GetMouseWheelMove();
+}
+
+static int epochTime(void) {
+  return (int)time(NULL);
+}
+
+static float getGamepadAxis(int axis) {
+  return GetGamepadAxisMovement(0, axis);
+}
+
+static bool isGamepadButtonDown(int button) {
+  return IsGamepadButtonDown(0, button);
+}
+
+static float getMouseDeltaX(void) {
+  return GetMouseDelta().x;
+}
+
+static float getMouseDeltaY(void) {
+  return GetMouseDelta().y;
+}
 
 static void print(CyString* string) {
   fwrite(string->data, 1, string->size, stdout);
@@ -206,7 +325,7 @@ static const char* parseArgs(CyVM* vm, int argc, char **argv) {
 
 int main(int argc, char **argv) {
   SetConfigFlags(FLAG_VSYNC_HINT);
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   SetTraceLogLevel(LOG_WARNING);
 
   CyVM* vm = cyth_init();
@@ -250,6 +369,53 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "void print(string a)", (uintptr_t)print);
   cyth_load_function(vm, "void println(string a)", (uintptr_t)println);
   cyth_load_function(vm, "void setTraceCallback(void(int, string) callback)", (uintptr_t)setTraceCallback);
+  cyth_load_function(vm, "int createShader(string vertexSource, string fragmentSource)", (uintptr_t)createShader);
+  cyth_load_function(vm, "int getUniformLocation(int shader, string name)", (uintptr_t)getUniformLocation);
+  cyth_load_function(vm, "int getAttributeLocation(int shader, string name)", (uintptr_t)getAttributeLocation);
+  cyth_load_function(vm, "void setUniform(int uniform, float a)", (uintptr_t)setUniformFloat);
+  cyth_load_function(vm, "void setUniform(int uniform, float x, float y)", (uintptr_t)setUniformVec2);
+  cyth_load_function(vm, "void setUniform(int uniform, float x, float y, float z)", (uintptr_t)setUniformVec3);
+  cyth_load_function(vm, "void setUniform(int uniform, float x, float y, float z, float w)", (uintptr_t)setUniformVec4);
+  cyth_load_function(vm, "void setUniform(int uniform, float[] m)", (uintptr_t)setUniformMatrix4);
+  cyth_load_function(vm, "void setShader(int shader)", (uintptr_t)setShader);
+  cyth_load_function(vm, "void setVertexAttribute(int attribute, float x)", (uintptr_t)setVertexAttributeFloat);
+  cyth_load_function(vm, "void setVertexAttribute(int attribute, float x, float y)", (uintptr_t)setVertexAttributeVec2);
+  cyth_load_function(vm, "void setVertexAttribute(int attribute, int size, int stride, int offset)", (uintptr_t)setVertexAttributePointer);
+  cyth_load_function(vm, "int createVertexArray()", (uintptr_t)createVertexArray);
+  cyth_load_function(vm, "int createArrayBuffer()", (uintptr_t)createArrayBuffer);
+  cyth_load_function(vm, "void bindVertexArray(int vao)", (uintptr_t)bindVertexArray);
+  cyth_load_function(vm, "void bindArrayBuffer(int buffer)", (uintptr_t)bindArrayBuffer);
+  cyth_load_function(vm, "void setArrayBufferData(int buffer, float[] data, int count)", (uintptr_t)setArrayBufferData);
+  cyth_load_function(vm, "void updateArrayBufferData(int buffer, float[] data, int count)", (uintptr_t)updateArrayBufferData);
+  cyth_load_function(vm, "void drawVertexArray(int offset, int count)", (uintptr_t)drawVertexArray);
+  cyth_load_function(vm, "void drawVertexArrayLines(int count)", (uintptr_t)drawVertexArrayLines);
+  cyth_load_function(vm, "void setClearColor(float r, float g, float b, float a)", (uintptr_t)setClearColor);
+  cyth_load_function(vm, "void clearColor()", (uintptr_t)clearColor);
+  cyth_load_function(vm, "void clearDepth()", (uintptr_t)clearDepth);
+  cyth_load_function(vm, "void setDepthTest(bool enable)", (uintptr_t)setDepthTest);
+  cyth_load_function(vm, "void setBackfaceCulling(bool enable)", (uintptr_t)setBackfaceCulling);
+  cyth_load_function(vm, "void setColorMask(bool r, bool g, bool b, bool a)", (uintptr_t)setColorMask);
+  cyth_load_function(vm, "void setBlending(bool enable)", (uintptr_t)setBlending);
+  cyth_load_function(vm, "void setWireMode(bool wire)", (uintptr_t)setWireMode);
+  cyth_load_function(vm, "int createTexture(string data)", (uintptr_t)createTexture);
+  cyth_load_function(vm, "int createTextureRegion(string name, int left, int top, int right, int bottom)", (uintptr_t)createTextureRegion);
+  cyth_load_function(vm, "int createColorTexture(float r, float g, float b)", (uintptr_t)createColorTexture);
+  cyth_load_function(vm, "void updateTextureRegion(int texture, int x, int y, int width, int height, char[] data)", (uintptr_t)updateTextureRegion);
+  cyth_load_function(vm, "void setTexture(int texture)", (uintptr_t)setTexture);
+  cyth_load_function(vm, "void setViewport(int width, int height)", (uintptr_t)setViewport);
+  cyth_load_function(vm, "bool isWindowResized()", (uintptr_t)IsWindowResized);
+  cyth_load_function(vm, "int getWindowWidth()", (uintptr_t)GetScreenWidth);
+  cyth_load_function(vm, "int getWindowHeight()", (uintptr_t)GetScreenHeight);
+  cyth_load_function(vm, "int getRenderWidth()", (uintptr_t)GetRenderWidth);
+  cyth_load_function(vm, "int getRenderHeight()", (uintptr_t)GetRenderHeight);
+  cyth_load_function(vm, "void disableCursor()", (uintptr_t)DisableCursor);
+  cyth_load_function(vm, "void enableCursor()", (uintptr_t)EnableCursor);
+  cyth_load_function(vm, "float getMouseWheel()", (uintptr_t)GetMouseWheelMove);
+  cyth_load_function(vm, "int epochTime()", (uintptr_t)epochTime);
+  cyth_load_function(vm, "float getGamepadAxis(int axis)", (uintptr_t)getGamepadAxis);
+  cyth_load_function(vm, "bool isGamepadButtonDown(int button)", (uintptr_t)isGamepadButtonDown);
+  cyth_load_function(vm, "float getMouseDeltaX()", (uintptr_t)getMouseDeltaX);
+  cyth_load_function(vm, "float getMouseDeltaY()", (uintptr_t)getMouseDeltaY);
   cyth_load_string(vm, "builtin.cy",
     "class Image\n"
     "  int id\n"
