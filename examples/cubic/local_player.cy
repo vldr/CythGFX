@@ -198,8 +198,7 @@ class LocalPlayer
     lookAt.y = sin(viewAngles.y)
     lookAt.z = cos(viewAngles.x) * cos(viewAngles.y)
 
-    viewPosition = mixf(
-      entity.oldPosition,
+    viewPosition = entity.oldPosition.mix(
       entity.position,
       game.timer.delta
     )

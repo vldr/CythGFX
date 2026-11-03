@@ -140,7 +140,7 @@ class HeldBlock
     lastHeight = height
 
     float deltaHeight = 1.0 - height
-    deltaHeight = clampf(deltaHeight, -0.4, 0.4)
+    deltaHeight = clamp(deltaHeight, -0.4, 0.4)
     height += deltaHeight
 
     if isSwinging

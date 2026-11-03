@@ -28,35 +28,15 @@ Color fillColor;
 Color strokeColor;
 TraceFunc traceFunc;
 
+static void clearColor(void) { glClear(GL_COLOR_BUFFER_BIT); }
+static void clearDepth(void) { glClear(GL_DEPTH_BUFFER_BIT); }
 static void setShader(int shader) { glUseProgram(shader); }
-static int createShader(CyString* vertexSource, CyString* fragmentSource) {
-  return LoadShaderFromMemory(vertexSource->data, fragmentSource->data).id; 
-}
-
-static int getUniformLocation(int shader, CyString* name) { return glGetUniformLocation(shader, name->data); }
 static void setUniformFloat(int uniform, float a) { glUniform1f(uniform, a); }
 static void setUniformVec2(int uniform, float x, float y) { glUniform2f(uniform, x, y); }
 static void setUniformVec3(int uniform, float x, float y, float z) { glUniform3f(uniform, x, y, z); }
 static void setUniformVec4(int uniform, float x, float y, float z, float w) { glUniform4f(uniform, x, y, z, w); }
-static void setUniformMatrix4(int uniform, CyArray* array) { 
-  if (array->size == 16) 
-    glUniformMatrix4fv(uniform, 1, GL_FALSE, array->data); 
-}
-
-static int getAttributeLocation(int shader, CyString* name) { return glGetAttribLocation(shader, name->data); }
 static void setVertexAttributeFloat(int attribute, float x) { glVertexAttrib1f(attribute, x); }
 static void setVertexAttributeVec2(int attribute, float x, float y) { glVertexAttrib2f(attribute, x, y); }
-static void setVertexAttributePointer(int attribute, int size, int stride, int offset) {
-  glEnableVertexAttribArray(attribute);
-  glVertexAttribPointer(attribute, size, GL_FLOAT, GL_FALSE, stride, (const void*)(intptr_t)offset);
-}
-
-static void bindVertexArray(int vao) { glBindVertexArray(vao); }
-static void bindArrayBuffer(int buffer) { glBindBuffer(GL_ARRAY_BUFFER, buffer); }
-static void drawVertexArray(int offset, int count) { glDrawArrays(GL_TRIANGLES, offset, count); }
-static void drawVertexArrayLines(int count) { glDrawArrays(GL_LINES, 0, count); }
-static void clearColor(void) { glClear(GL_COLOR_BUFFER_BIT); }
-static void clearDepth(void) { glClear(GL_DEPTH_BUFFER_BIT); }
 static void setClearColor(float r, float g, float b, float a) { glClearColor(r, g, b, a); }
 static void setColorMask(bool r, bool g, bool b, bool a) { glColorMask(r, g, b, a); }
 static void setDepthTest(bool enable) { (enable ? glEnable : glDisable)(GL_DEPTH_TEST); }
@@ -65,11 +45,12 @@ static void setBlending(bool enable) { (enable ? glEnable : glDisable)(GL_BLEND)
 static void setWireMode(bool wire) { glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL); }
 static void setTexture(int texture) { glBindTexture(GL_TEXTURE_2D, texture); }
 static void setViewport(int width, int height) { glViewport(0, 0, width, height); }
-
-static void updateTextureRegion(int texture, int x, int y, int width, int height, CyArray* data) {
-  glBindTexture(GL_TEXTURE_2D, texture);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data->data);
-}
+static void bindVertexArray(int vao) { glBindVertexArray(vao); }
+static void bindArrayBuffer(int buffer) { glBindBuffer(GL_ARRAY_BUFFER, buffer); }
+static void drawVertexArray(int offset, int count) { glDrawArrays(GL_TRIANGLES, offset, count); }
+static void drawVertexArrayLines(int count) { glDrawArrays(GL_LINES, 0, count); }
+static int getUniformLocation(int shader, CyString* name) { return glGetUniformLocation(shader, name->data); }
+static int getAttributeLocation(int shader, CyString* name) { return glGetAttribLocation(shader, name->data); }
 
 static int createVertexArray(void) {
   GLuint vao;
@@ -83,12 +64,37 @@ static int createArrayBuffer(void) {
   return buffer;
 }
 
-static void setArrayBufferData(int buffer, CyArray* array, int count) {
-  glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), array->data, GL_DYNAMIC_DRAW);
+static int createShader(CyString* vertexSource, CyString* fragmentSource) {
+  return LoadShaderFromMemory(vertexSource->data, fragmentSource->data).id; 
 }
 
-static void updateArrayBufferData(int buffer, CyArray* data, int count) {
-  glBufferSubData(GL_ARRAY_BUFFER, 0, count * sizeof(float), data->data);
+static void setUniformMatrix4(int uniform, CyArray* array) { 
+  if (array->size == 16) 
+    glUniformMatrix4fv(uniform, 1, GL_FALSE, array->data); 
+}
+
+static void updateTextureRegion(int texture, int x, int y, int width, int height, CyArray* array) {
+  if (width > 0 && height > 0 && 
+      (size_t)width <= SIZE_MAX / 4 / (size_t)height && 
+      (size_t)array->size >= (size_t)width * (size_t)height * 4) {
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, array->data);
+  }
+}
+
+static void setArrayBufferData(int buffer, CyArray* array, int count) {
+  if (count > 0 && count <= array->size)
+    glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), array->data, GL_DYNAMIC_DRAW);
+}
+
+static void updateArrayBufferData(int buffer, CyArray* array, int count) {
+  if (count > 0 && count <= array->size)
+    glBufferSubData(GL_ARRAY_BUFFER, 0, count * sizeof(float), array->data);
+}
+
+static void setVertexAttributePointer(int attribute, int size, int stride, int offset) {
+  glEnableVertexAttribArray(attribute);
+  glVertexAttribPointer(attribute, size, GL_FLOAT, GL_FALSE, stride, (const void*)(intptr_t)offset);
 }
 
 static int createTexture(CyString* string) {
@@ -118,10 +124,6 @@ static int createColorTexture(float r, float g, float b) {
   data[2] = (unsigned char)(b * 255.0f);
 
   return LoadTextureFromImage((Image) {data, 1, 1, true, PIXELFORMAT_UNCOMPRESSED_R8G8B8}).id;
-}
-
-static float getMouseWheelF(void) {
-  return GetMouseWheelMove();
 }
 
 static int epochTime(void) {

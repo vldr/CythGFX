@@ -90,8 +90,7 @@ class Particle
     if expired()
       return
 
-    Vector3 renderPosition = mixf(
-      entity.oldPosition,
+    Vector3 renderPosition = entity.oldPosition.mix(
       entity.position,
       game.timer.delta
     )

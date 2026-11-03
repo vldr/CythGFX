@@ -223,8 +223,8 @@ class Game
     setUniform(projectionMatrixUniform, perspectiveProjectionMatrix.data)
     setUniform(viewMatrixUniform, localPlayer.viewMatrix.data)
     setUniform(modelMatrixUniform, identityMatrix.data)
+
     setUniform(playerPositionUniform, localPlayer.entity.position.x, localPlayer.entity.position.y, localPlayer.entity.position.z)
-    
     setUniform(fogEnableUniform, 0.0)
     setUniform(fogDistanceUniform, localPlayer.fogDistance)
     setUniform(fogColorUniform, localPlayer.fogRed, localPlayer.fogGreen, localPlayer.fogBlue, localPlayer.fogAlpha)

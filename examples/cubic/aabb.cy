@@ -156,7 +156,7 @@ class AABB
     if absDa < 0.0000001 or s < 0.0 or s > 1.0
       return MAX_VECTOR
 
-    return mixf(start, end, s)
+    return start.mix(end, s)
 
   Vector3 intersectionY(Vector3 start, Vector3 end, float s)
     float dy = end.y - start.y
@@ -171,7 +171,7 @@ class AABB
     if absDa < 0.0000001 or s < 0.0 or s > 1.0
       return MAX_VECTOR
 
-    return mixf(start, end, s)
+    return start.mix(end, s)
 
   Vector3 intersectionZ(Vector3 start, Vector3 end, float s)
     float dz = end.z - start.z
@@ -186,7 +186,7 @@ class AABB
     if absDa < 0.0000001 or s < 0.0 or s > 1.0
       return MAX_VECTOR
 
-    return mixf(start, end, s)
+    return start.mix(end, s)
 
   AABBPosition clip(Vector3 start, Vector3 end)
     Vector3 minX = intersectionX(start, end, x0)
@@ -214,19 +214,19 @@ class AABB
     if minX != MAX_VECTOR
       intersection = minX
 
-    if maxX != MAX_VECTOR and (intersection == MAX_VECTOR or distancef(start, maxX) < distancef(start, intersection))
+    if maxX != MAX_VECTOR and (intersection == MAX_VECTOR or start.distance(maxX) < start.distance(intersection))
       intersection = maxX
 
-    if minY != MAX_VECTOR and (intersection == MAX_VECTOR or distancef(start, minY) < distancef(start, intersection))
+    if minY != MAX_VECTOR and (intersection == MAX_VECTOR or start.distance(minY) < start.distance(intersection))
       intersection = minY
 
-    if maxY != MAX_VECTOR and (intersection == MAX_VECTOR or distancef(start, maxY) < distancef(start, intersection))
+    if maxY != MAX_VECTOR and (intersection == MAX_VECTOR or start.distance(maxY) < start.distance(intersection))
       intersection = maxY
 
-    if minZ != MAX_VECTOR and (intersection == MAX_VECTOR or distancef(start, minZ) < distancef(start, intersection))
+    if minZ != MAX_VECTOR and (intersection == MAX_VECTOR or start.distance(minZ) < start.distance(intersection))
       intersection = minZ
 
-    if maxZ != MAX_VECTOR and (intersection == MAX_VECTOR or distancef(start, maxZ) < distancef(start, intersection))
+    if maxZ != MAX_VECTOR and (intersection == MAX_VECTOR or start.distance(maxZ) < start.distance(intersection))
       intersection = maxZ
 
     if intersection == MAX_VECTOR

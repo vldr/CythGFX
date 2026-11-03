@@ -205,7 +205,7 @@ class LevelRenderer
       waterTextureBlue[i] = waterTextureRed[i]
       waterTextureRed[i] = previousBlue
 
-      float value = clampf(waterTextureRed[i], 0.0, 1.0)
+      float value = clamp(waterTextureRed[i], 0.0, 1.0)
       int red = (int)(32.0 + value * value * 32.0)
       int green = (int)(50.0 + value * value * 64.0)
       int alpha = (int)(180.0 + value * value * 45.0)
@@ -267,7 +267,7 @@ class LevelRenderer
       lavaTextureRed[i] = lavaTextureGreen[i]
       lavaTextureGreen[i] = previousRed
 
-      float value = clampf(lavaTextureRed[i] * 2.0, 0.0, 1.0)
+      float value = clamp(lavaTextureRed[i] * 2.0, 0.0, 1.0)
       int red = (int)(value * 100.0 + 155.0)
       int green = (int)(value * value * 255.0)
       int blue = (int)(value * value * value * value * 128.0)

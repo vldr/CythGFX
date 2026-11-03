@@ -53,6 +53,20 @@ class Vector3
   Vector3 clone()
     return Vector3(x, y, z)
 
+  float distance(Vector3 other)
+    float dx = x - other.x
+    float dy = y - other.y
+    float dz = z - other.z
+  
+    return (dx * dx + dy * dy + dz * dz).sqrt()
+
+  Vector3 mix(Vector3 end, float s)
+    return Vector3(
+      x + (end.x - x) * s,
+      y + (end.y - y) * s,
+      z + (end.z - z) * s
+    )
+
 class Int3
   int x
   int y
@@ -115,50 +129,37 @@ float floorTo(float x)
     return (float)(i - 1)
   return (float)i
 
-float clampf(float value, float min, float max)
+float clamp(float value, float min, float max)
   if value < min
     return min
   if value > max
     return max
   return value
 
-float maxf(float a, float b)
+float max(float a, float b)
   if a > b
     return a
   return b
 
-float minf(float a, float b)
+float min(float a, float b)
   if a < b
     return a
   return b
 
-int maxi(int a, int b)
+int max(int a, int b)
   if a > b
     return a
   return b
 
-int mini(int a, int b)
+int min(int a, int b)
   if a < b
     return a
   return b
 
-int absi(int a)
+int abs(int a)
   if a < 0
     return -a
   return a
-
-float distancef(Vector3 a, Vector3 b)
-  float dx = a.x - b.x
-  float dy = a.y - b.y
-  float dz = a.z - b.z
-  return (dx * dx + dy * dy + dz * dz).sqrt()
-
-Vector3 mixf(Vector3 start, Vector3 end, float s)
-  return Vector3(
-    start.x + (end.x - start.x) * s,
-    start.y + (end.y - start.y) * s,
-    start.z + (end.z - start.z) * s
-  )
 
 class Matrix
   float[] data
@@ -258,10 +259,9 @@ Matrix matrixPerspective(
   float zFar
 )
   float tanHalfFovy = tan(fovyRadians * 0.5)
-  float[] result
 
-  for int i; i < 16; i++
-    result.push(0.0)
+  float[] result
+  result.reserve(16)
 
   result[0] = 1.0 / (aspect * tanHalfFovy)
   result[5] = 1.0 / tanHalfFovy
@@ -280,9 +280,7 @@ Matrix matrixOrtho(
   float zFar
 )
   float[] result
-
-  for int i; i < 16; i++
-    result.push(0.0)
+  result.reserve(16)
 
   result[0] = 2.0 / (right - left)
   result[5] = 2.0 / (top - bottom)

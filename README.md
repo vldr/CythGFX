@@ -1,7 +1,7 @@
 # CythGFX
 A graphical example program that embeds the [Cyth](https://github.com/vldr/Cyth) programming language.
 
-<img src="splash.png" style="width:500px;">
+<img src="splash.png" style="max-width:700px;">
 
 # Binaries
 

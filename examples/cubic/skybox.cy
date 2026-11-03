@@ -48,7 +48,7 @@ class Skybox
     bedrockVertices.init()
 
     float ground = (float)game.level.groundLevel
-    int a = mini(128, mini(LEVEL_WIDTH, LEVEL_DEPTH))
+    int a = min(128, min(LEVEL_WIDTH, LEVEL_DEPTH))
     int b = 1024 / a
 
     for int i = -a * b; i < LEVEL_WIDTH + a * b; i += a
@@ -120,7 +120,7 @@ class Skybox
     waterVertices.init()
 
     float water = (float)game.level.waterLevel
-    int a = mini(128, mini(LEVEL_WIDTH, LEVEL_DEPTH))
+    int a = min(128, min(LEVEL_WIDTH, LEVEL_DEPTH))
     int b = 1024 / a
 
     for int i = -a * b; i < LEVEL_WIDTH + a * b; i += a
