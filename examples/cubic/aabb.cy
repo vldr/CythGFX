@@ -49,7 +49,7 @@ class AABB
       z1 + (z > 0.0 ? z : 0.0)
     )
 
-  AABB expand3(int x, int y, int z)
+  AABB expand(int x, int y, int z)
     return expand((float)x, (float)y, (float)z)
 
   AABB grow(float x, float y, float z)
@@ -62,7 +62,7 @@ class AABB
       z1 + z
     )
 
-  AABB grow3(int x, int y, int z)
+  AABB grow(int x, int y, int z)
     return grow((float)x, (float)y, (float)z)
 
   AABB move(float x, float y, float z)
@@ -75,7 +75,7 @@ class AABB
       z1 + z
     )
 
-  AABB move3(int x, int y, int z)
+  AABB move(int x, int y, int z)
     return move((float)x, (float)y, (float)z)
 
   float clipX(AABB aabb, float velocityX)

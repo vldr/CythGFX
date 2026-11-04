@@ -24,18 +24,18 @@ float NEAR_PLANE = 0.01
 float FAR_PLANE = 1000.0
 float TICK_RATE = 20.0
 
-string VERTEX_SHADER = "#version 330 core
+string VERTEX_SHADER = "#version 100
   uniform mat4 view;
   uniform mat4 projection;
   uniform mat4 model;
 
-  in vec3 position;
-  in vec2 uv;
-  in float shade;
+  attribute vec3 position;
+  attribute vec2 uv;
+  attribute float shade;
 
-  out vec3 fragmentPosition;
-  out vec2 fragmentTextureCoordinate;
-  out float fragmentShade;
+  varying vec3 fragmentPosition;
+  varying vec2 fragmentTextureCoordinate;
+  varying float fragmentShade;
 
   void main() {
     fragmentPosition = (model * vec4(position, 1.0)).xyz;
@@ -46,7 +46,9 @@ string VERTEX_SHADER = "#version 330 core
   }
 "
 
-string FRAGMENT_SHADER = "#version 330 core
+string FRAGMENT_SHADER = "#version 100
+  precision highp float;
+
   uniform sampler2D textureSample;
   uniform vec2 fragmentOffset;
   uniform vec3 playerPosition;
@@ -54,13 +56,12 @@ string FRAGMENT_SHADER = "#version 330 core
   uniform float fogDistance;
   uniform vec4 fogColor;
 
-  in vec3 fragmentPosition;
-  in vec2 fragmentTextureCoordinate;
-  in float fragmentShade;
-  out vec4 outputColor;
+  varying vec3 fragmentPosition;
+  varying vec2 fragmentTextureCoordinate;
+  varying float fragmentShade;
 
   void main() {
-    vec4 color = texture(textureSample, fragmentTextureCoordinate + fragmentOffset);
+    vec4 color = texture2D(textureSample, fragmentTextureCoordinate + fragmentOffset);
     color.rgb *= fragmentShade;
 
     if (color.a == 0.0)
@@ -70,7 +71,7 @@ string FRAGMENT_SHADER = "#version 330 core
     float factor = (fogDistance - distanceToPlayer) / fogDistance;
     factor = max(fogEnable, clamp(factor, 0.0, 1.0));
 
-    outputColor = mix(fogColor, color, factor);
+    gl_FragColor = mix(fogColor, color, factor);
   }
 "
 
@@ -87,6 +88,10 @@ class Game
   Timer timer
   Level level
   LocalPlayer localPlayer
+
+  Matrix perspectiveProjectionMatrix
+  Matrix orthographicProjectionMatrix
+  Matrix identityMatrix
 
   int shader
   int atlasTexture
@@ -110,10 +115,6 @@ class Game
   int height
 
   bool wireMode
-
-  Matrix perspectiveProjectionMatrix
-  Matrix orthographicProjectionMatrix
-  Matrix identityMatrix
 
   void __init__()
     width = 1280
@@ -214,7 +215,7 @@ class Game
 
     levelGenerator.update()
     localPlayer.update()
-    levelRenderer.updateFrustum(perspectiveProjectionMatrix, localPlayer.viewMatrix)
+    levelRenderer.update(perspectiveProjectionMatrix, localPlayer.viewMatrix)
 
     setClearColor(localPlayer.fogRed, localPlayer.fogGreen, localPlayer.fogBlue, localPlayer.fogAlpha)
     clearColor()
@@ -225,6 +226,7 @@ class Game
     setUniform(modelMatrixUniform, identityMatrix.data)
 
     setUniform(playerPositionUniform, localPlayer.entity.position.x, localPlayer.entity.position.y, localPlayer.entity.position.z)
+    
     setUniform(fogEnableUniform, 0.0)
     setUniform(fogDistanceUniform, localPlayer.fogDistance)
     setUniform(fogColorUniform, localPlayer.fogRed, localPlayer.fogGreen, localPlayer.fogBlue, localPlayer.fogAlpha)
@@ -241,4 +243,3 @@ class Game
     setUniform(projectionMatrixUniform, perspectiveProjectionMatrix.data)
 
     heldBlock.render()
-    setUniform(modelMatrixUniform, identityMatrix.data)

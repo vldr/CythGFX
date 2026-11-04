@@ -69,7 +69,7 @@ class LevelRenderer
 
     return chunks[chunkIndex(x, y, z)]
 
-  void updateFrustum(Matrix projection, Matrix view)
+  void update(Matrix projection, Matrix view)
     frustum.update(projection, view)
 
   void queueChunk(int x, int y, int z)
