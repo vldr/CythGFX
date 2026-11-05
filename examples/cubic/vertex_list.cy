@@ -1,20 +1,7 @@
 import "game.cy"
 
-class Allocator
-  float[] data
-  int size
-
-  void __init__()
-    data = []
-    size = 0
-
-  void __init__(int size)
-    this.data = []
-    this.size = size
-    this.data.reserve(size * 6)
-
 class VertexList
-  Allocator allocator
+  float[] data
   int vao
   int buffer
   int bufferLength
@@ -22,35 +9,23 @@ class VertexList
   int index
 
   void __init__()
-    allocator = Allocator()
     vao = 0
     buffer = 0
     bufferLength = 0
     length = 0
     index = 0
 
-  void init(Allocator allocator_)
-    if not allocator_
-      allocator = Allocator()
-    else
-      allocator.data = allocator_.data
-      allocator.size = allocator_.size
-
-    initializeGraphics()
+  void init()
+    init(24)
 
   void init(int size)
-    allocator.data = []
-    allocator.size = size
-    allocator.data.reserve(size * 6)
-    initializeGraphics()
+    float[] data
+    data.reserve(size)
 
-  void init()
-    allocator.data = []
-    allocator.size = 4
-    allocator.data.reserve(24)
-    initializeGraphics()
+    init(data)
 
-  void initializeGraphics()
+  void init(float[] vertices)
+    data = vertices
     index = 0
     length = 0
     bufferLength = 0
@@ -66,32 +41,30 @@ class VertexList
     setVertexAttribute(game.shadeAttribute, 1, 24, 20)
 
   void grow()
-    if index == allocator.size
-      if allocator.size == 0
-        allocator.size++
-      allocator.size *= 2
+    int required = (index + 1) * 6
+    if required > data.length
+      int growth = data.length
+      if growth <= 0
+        growth = 24
 
-      float[] old = allocator.data
-      int copyLength = old.length
-      allocator.data = []
-      allocator.data.reserve(allocator.size * 6)
-      for int i; i < copyLength; i++
-        allocator.data[i] = old[i]
+      for int i = 0; i < growth; i++
+        data.push(0)
 
   void push(float x, float y, float z, float u, float v, float s)
     grow()
 
     int base = index * 6
-    allocator.data[base] = x
-    allocator.data[base + 1] = y
-    allocator.data[base + 2] = z
-    allocator.data[base + 3] = u
-    allocator.data[base + 4] = v
-    allocator.data[base + 5] = s
+    data[base] = x
+    data[base + 1] = y
+    data[base + 2] = z
+    data[base + 3] = u
+    data[base + 4] = v
+    data[base + 5] = s
+
     index++
 
   void reset()
-    index = 0
+    index = 0 
 
   void update()
     length = index
@@ -101,12 +74,12 @@ class VertexList
       bindArrayBuffer(buffer)
 
       if length > bufferLength
-        setArrayBufferData(buffer, allocator.data, length * 6)
+        setArrayBufferData(buffer, data, length * 6)
         bufferLength = length
       else
-        updateArrayBufferData(buffer, allocator.data, length * 6)
+        updateArrayBufferData(buffer, data, length * 6)
 
-      index = 0
+      reset()
 
   void render()
     if length > 0

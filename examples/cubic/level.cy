@@ -272,6 +272,7 @@ class Level
 
     if isInBounds(x, y, z)
       return blocks[(z * LEVEL_HEIGHT + y) * LEVEL_WIDTH + x]
+
     return BLOCK_AIR
 
   void updateTileDeferred(int x, int y, int z, bool deferred)

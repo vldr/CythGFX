@@ -9,6 +9,12 @@ int FACE_BACK = 3
 int FACE_LEFT = 4
 int FACE_RIGHT = 5
 
+float[] verticesData
+verticesData.reserve(1024)
+
+float[] waterVerticesData
+waterVerticesData.reserve(1024)
+
 class Chunk
   Int3 position
 
@@ -25,8 +31,8 @@ class Chunk
     isVisible = false
     isLoaded = false
 
-    vertices.init()
-    waterVertices.init()
+    vertices.init(verticesData)
+    waterVertices.init(waterVerticesData)
 
   bool isLiquid(int blockType)
     return blockDefinitions[blockType].collide == COLLIDE_LIQUID
@@ -54,25 +60,27 @@ class Chunk
     if blockDefinition.draw == DRAW_OPAQUE
       if adjacent.draw == DRAW_OPAQUE
         return false
-      if adjacent.draw == DRAW_OPAQUE_SMALL
+      else if adjacent.draw == DRAW_OPAQUE_SMALL
         return faceType != FACE_TOP
-      return true
+      else if adjacent.draw == DRAW_TRANSPARENT or adjacent.draw == DRAW_TRANSPARENT_THICK or adjacent.draw == DRAW_TRANSLUCENT or adjacent.draw == DRAW_GAS or adjacent.draw == DRAW_SPRITE
+        return true
 
-    if blockDefinition.draw == DRAW_OPAQUE_SMALL
+    else if blockDefinition.draw == DRAW_OPAQUE_SMALL
       if adjacent.draw == DRAW_OPAQUE
         return faceType == FACE_TOP
-      if adjacent.draw == DRAW_OPAQUE_SMALL
+      else if adjacent.draw == DRAW_OPAQUE_SMALL
         return faceType == FACE_TOP or faceType == FACE_BOTTOM
-      return true
+      else if adjacent.draw == DRAW_TRANSPARENT or adjacent.draw == DRAW_TRANSPARENT_THICK or adjacent.draw == DRAW_TRANSLUCENT or adjacent.draw == DRAW_GAS or adjacent.draw == DRAW_SPRITE
+        return true
 
-    if blockDefinition.draw == DRAW_TRANSPARENT_THICK
+    else if blockDefinition.draw == DRAW_TRANSPARENT_THICK
       return adjacent.draw != DRAW_OPAQUE
 
-    if blockDefinition.draw == DRAW_TRANSLUCENT or blockDefinition.draw == DRAW_TRANSPARENT
+    else if blockDefinition.draw == DRAW_TRANSLUCENT or blockDefinition.draw == DRAW_TRANSPARENT
       if adjacent.draw == blockDefinition.draw and adjacentType == blockType
         return false
 
-      if adjacent.draw == DRAW_OPAQUE
+      else if adjacent.draw == DRAW_OPAQUE
         if faceType == FACE_TOP and blockDefinition.collide == COLLIDE_LIQUID
           int[] offsetsX = [0, 0, -1, 1, 1, 1, -1, -1]
           int[] offsetsZ = [1, -1, 0, 0, 1, -1, 1, -1]
@@ -81,18 +89,22 @@ class Chunk
             int px = x + offsetsX[i]
             int pz = z + offsetsZ[i]
 
-            if game.level.isInBounds(px, y, pz)
-              int topType = game.level.getRenderTile(px, y + 1, pz)
-              int bottomType = game.level.getRenderTile(px, y, pz)
-              Definition top = blockDefinitions[topType]
-              Definition bottom = blockDefinitions[bottomType]
+            if not game.level.isInBounds(px, y, pz)
+              continue
 
-              if bottomType != topType and bottom.draw != DRAW_OPAQUE and top.draw != DRAW_OPAQUE and top.draw != DRAW_OPAQUE_SMALL
-                return true
+            int topType = game.level.getRenderTile(px, y + 1, pz)
+            int bottomType = game.level.getRenderTile(px, y, pz)
+
+            Definition top = blockDefinitions[topType]
+            Definition bottom = blockDefinitions[bottomType]
+
+            if bottomType != topType and bottom.draw != DRAW_OPAQUE and top.draw != DRAW_OPAQUE and top.draw != DRAW_OPAQUE_SMALL
+              return true
 
         return false
 
-      return true
+      else
+        return true
 
     return false
 
@@ -332,7 +344,7 @@ class Chunk
 
   void emitFace(int faceType, int x, int y, int z, int blockType, Definition definition)
     float height = definition.height
-    if faceType == FACE_TOP and definition.collide == COLLIDE_LIQUID
+    if definition.collide == COLLIDE_LIQUID and shouldRenderFace(FACE_TOP, x, y, z) 
       height = 0.9
 
     float brightness = faceBrightness(faceType, x, y, z, blockType)
@@ -357,7 +369,6 @@ class Chunk
       for int y = position.y; y < position.y + CHUNK_SIZE; y++
         for int z = position.z; z < position.z + CHUNK_SIZE; z++
           int blockType = game.level.getRenderTile(x, y, z)
-
           if blockType != BLOCK_AIR
             Definition definition = blockDefinitions[blockType]
 

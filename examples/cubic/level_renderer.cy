@@ -11,9 +11,7 @@ class LevelRenderer
   Skybox skybox
 
   Chunk[] chunks
-  bool[] queued
-
-  int chunkUpdates
+  Chunk[] chunkQueue
 
   char[] waterTextureData
   float[] waterTextureRed
@@ -30,17 +28,14 @@ class LevelRenderer
   void __init__()
     frustum = Frustum()
     skybox = Skybox()
-    chunkUpdates = 0
 
     chunks.reserve(CHUNK_COUNT)
-    queued.reserve(CHUNK_COUNT)
 
     for int x; x < CHUNKS_X; x++
       for int y; y < CHUNKS_Y; y++
         for int z; z < CHUNKS_Z; z++
           int index = chunkIndex(x, y, z)
           chunks[index] = Chunk(x * CHUNK_SIZE, y * CHUNK_SIZE, z * CHUNK_SIZE)
-          queued[index] = false
 
     waterTextureData.reserve(1024)
     waterTextureRed.reserve(256)
@@ -60,31 +55,37 @@ class LevelRenderer
   int chunkIndex(int x, int y, int z)
     return (z * CHUNKS_Y + y) * CHUNKS_X + x
 
-  bool validChunk(int x, int y, int z)
-    return x >= 0 and y >= 0 and z >= 0 and x < CHUNKS_X and y < CHUNKS_Y and z < CHUNKS_Z
-
   Chunk getChunk(int x, int y, int z)
-    if not validChunk(x, y, z)
-      return null
+    if x >= 0 and y >= 0 and z >= 0 and x < CHUNKS_X and y < CHUNKS_Y and z < CHUNKS_Z
+      return chunks[chunkIndex(x, y, z)]
 
-    return chunks[chunkIndex(x, y, z)]
+    return null
 
   void update(Matrix projection, Matrix view)
     frustum.update(projection, view)
 
-  void queueChunk(int x, int y, int z)
-    if not validChunk(x, y, z)
-      return
-
-    int index = chunkIndex(x, y, z)
-    if not queued[index]
-      queued[index] = true
-      chunks[index].isLoaded = false
-
   void loadAllChunks()
-    for int i; i < chunks.length; i++
-      queued[i] = true
-      chunks[i].isLoaded = false
+    int px = (int)(game.localPlayer.entity.position.x / CHUNK_SIZE)
+    int py = (int)(game.localPlayer.entity.position.y / CHUNK_SIZE)
+    int pz = (int)(game.localPlayer.entity.position.z / CHUNK_SIZE)
+    int maxRing = max(CHUNKS_X, max(CHUNKS_Y, CHUNKS_Z))
+
+    Chunk[][] buckets
+    for int i = 0; i <= maxRing; i++
+      buckets.push([])
+
+    for int x; x < CHUNKS_X; x++
+      for int y; y < CHUNKS_Y; y++
+        for int z; z < CHUNKS_Z; z++
+          Chunk chunk = chunks[chunkIndex(x, y, z)]
+
+          int ring = max(abs(x - px), max(abs(y - py), abs(z - pz)))
+          buckets[ring].push(chunk)
+
+    for int ring = maxRing; ring >= 0; ring--
+      for Chunk chunk in buckets[ring]
+        chunk.isLoaded = false
+        chunkQueue.push(chunk)
 
   void loadChunks(int x, int y, int z)
     int[] dx = [0, 1, -1, 0, 0, 0, 0]
@@ -92,51 +93,24 @@ class LevelRenderer
     int[] dz = [0, 0, 0, 0, 0, 1, -1]
 
     for int i; i < 7; i++
-      int blockX = x + dx[i]
-      int blockY = y + dy[i]
-      int blockZ = z + dz[i]
+      int offsetX = (x + dx[i]) / CHUNK_SIZE
+      int offsetY = (y + dy[i]) / CHUNK_SIZE
+      int offsetZ = (z + dz[i]) / CHUNK_SIZE
 
-      if blockX >= 0 and blockY >= 0 and blockZ >= 0
-        int chunkX = blockX / CHUNK_SIZE
-        int chunkY = blockY / CHUNK_SIZE
-        int chunkZ = blockZ / CHUNK_SIZE
-
-        if validChunk(chunkX, chunkY, chunkZ)
-          int index = chunkIndex(chunkX, chunkY, chunkZ)
-
-          if chunks[index].isLoaded
-            queueChunk(chunkX, chunkY, chunkZ)
-
-  int nearestQueuedChunk()
-    int selected = -1
-    float selectedDistance = 0.0
-
-    for int i; i < chunks.length; i++
-      if queued[i]
-        float distance = chunks[i].distanceToPlayer()
-
-        if selected == -1 or distance < selectedDistance
-          selected = i
-          selectedDistance = distance
-
-    return selected
-
-  void updateQueuedChunks()
-    int updates = 0
-
-    while updates < MAX_CHUNK_UPDATES
-      int index = nearestQueuedChunk()
-      if index == -1
-        break
-
-      queued[index] = false
-      chunks[index].update()
-      updates++
-
-    chunkUpdates += updates
+      Chunk chunk = getChunk(offsetX, offsetY, offsetZ)
+      if chunk and chunk.isLoaded
+        chunk.isLoaded = false
+        chunkQueue.push(chunk)
 
   void render()
-    updateQueuedChunks()
+    int updates = 0
+    while updates < MAX_CHUNK_UPDATES and chunkQueue
+      Chunk chunk = chunkQueue.pop()
+      chunk.isLoaded = true
+      chunk.update()
+
+      updates++
+    
     setTexture(game.atlasTexture)
 
     for Chunk chunk in chunks

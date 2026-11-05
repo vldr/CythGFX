@@ -70,6 +70,7 @@ class LevelGenerator
       game.level.calculateLightDepths(0, 0, LEVEL_WIDTH, LEVEL_DEPTH)
       game.level.calculateSpawnPosition()
       game.level.reset()
+
       game.levelRenderer.loadAllChunks()
 
       state = GENERATOR_FINISHED
