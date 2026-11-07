@@ -66,14 +66,14 @@ int BLOCK_OBSIDIAN = 49
 AABB DEFAULT_BOUNDING_BOX = AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
 
 class Definition
+  AABB boundingBox
   int topTexture
   int sideTexture
   int bottomTexture
-  float height
-  AABB boundingBox
-  bool blocksLight
   int draw
   int collide
+  float height
+  bool blocksLight
 
   void __init__(
     int topTexture, int sideTexture, int bottomTexture, float height,

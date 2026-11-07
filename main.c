@@ -130,14 +130,6 @@ static int epochTime(void) {
   return (int)time(NULL);
 }
 
-static float getGamepadAxis(int axis) {
-  return GetGamepadAxisMovement(0, axis);
-}
-
-static bool isGamepadButtonDown(int button) {
-  return IsGamepadButtonDown(0, button);
-}
-
 static float getMouseDeltaX(void) {
   return GetMouseDelta().x;
 }
@@ -414,8 +406,6 @@ int main(int argc, char **argv) {
   cyth_load_function(vm, "void enableCursor()", (uintptr_t)EnableCursor);
   cyth_load_function(vm, "float getMouseWheel()", (uintptr_t)GetMouseWheelMove);
   cyth_load_function(vm, "int epochTime()", (uintptr_t)epochTime);
-  cyth_load_function(vm, "float getGamepadAxis(int axis)", (uintptr_t)getGamepadAxis);
-  cyth_load_function(vm, "bool isGamepadButtonDown(int button)", (uintptr_t)isGamepadButtonDown);
   cyth_load_function(vm, "float getMouseDeltaX()", (uintptr_t)getMouseDeltaX);
   cyth_load_function(vm, "float getMouseDeltaY()", (uintptr_t)getMouseDeltaY);
   cyth_load_string(vm, "builtin.cy",

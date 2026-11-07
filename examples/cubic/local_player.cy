@@ -35,12 +35,6 @@ class LocalPlayer
   int selectedIndex
 
   int lastClick
-  float lastMouseWheel
-
-  bool previousRightShoulder
-  bool previousLeftShoulder
-  bool previousLeftThumb
-  bool previousRightThumb
 
   void __init__()
     entity = Entity()
@@ -81,12 +75,6 @@ class LocalPlayer
     selected = AABBPosition()
     selectedIndex = 0
     lastClick = 0
-    lastMouseWheel = 0.0
-
-    previousRightShoulder = false
-    previousLeftShoulder = false
-    previousLeftThumb = false
-    previousRightThumb = false
 
   Vector3 position()
     return entity.position
@@ -159,7 +147,6 @@ class LocalPlayer
       selectInventorySlot(8)
 
     float wheel = getMouseWheel()
-
     if wheel < 0.0
       previousInventorySlot()
     else if wheel > 0.0
@@ -170,25 +157,6 @@ class LocalPlayer
 
     if mouseX != 0.0 or mouseY != 0.0
       turn(mouseX * 0.15, mouseY * 0.15)
-
-    bool leftShoulder = isGamepadButtonDown(4)
-    bool rightShoulder = isGamepadButtonDown(6)
-    bool leftThumb = isGamepadButtonDown(11)
-    bool rightThumb = isGamepadButtonDown(12)
-
-    if rightShoulder and not previousRightShoulder
-      nextInventorySlot()
-
-    if leftShoulder and not previousLeftShoulder
-      previousInventorySlot()
-
-    if leftThumb and not previousLeftThumb
-      entity.noPhysics = not entity.noPhysics
-
-    previousRightShoulder = rightShoulder
-    previousLeftShoulder = leftShoulder
-    previousLeftThumb = leftThumb
-    previousRightThumb = rightThumb
 
   void update()
     viewAngles.y = radians(entity.rotation.y)
@@ -265,27 +233,9 @@ class LocalPlayer
           ground
         )
 
-    float controllerX = getGamepadAxis(2)
-    float controllerY = getGamepadAxis(3)
-
-    if abs(controllerX) > LOCAL_PLAYER_CONTROLLER_DEAD_ZONE or abs(controllerY) > LOCAL_PLAYER_CONTROLLER_DEAD_ZONE
-      turn(
-        controllerX * LOCAL_PLAYER_CONTROLLER_SPEED,
-        controllerY * LOCAL_PLAYER_CONTROLLER_SPEED
-      )
-
     bool interactLeft = isMouseButtonDown(MOUSE_BUTTON_LEFT)
     bool interactMiddle = isMouseButtonDown(MOUSE_BUTTON_MIDDLE)
     bool interactRight = isMouseButtonDown(MOUSE_BUTTON_RIGHT)
-
-    if getGamepadAxis(4) > 0.305
-      interactRight = true
-
-    if getGamepadAxis(5) > 0.305
-      interactLeft = true
-
-    if previousRightThumb
-      interactMiddle = true
 
     if game.timer.ticks - lastClick < (int)(game.timer.ticksPerSecond / LOCAL_PLAYER_BUILD_SPEED)
       return
@@ -394,24 +344,11 @@ class LocalPlayer
     if isKeyDown(KEY_D) or isKeyDown(KEY_RIGHT)
       moveX = -0.98
 
-    if isKeyDown(KEY_SPACE) or isGamepadButtonDown(2)
+    if isKeyDown(KEY_SPACE)
       jumping = true
 
     if isKeyDown(KEY_LEFT_SHIFT)
       sprinting = true
-
-    float leftX = getGamepadAxis(0)
-    float leftY = getGamepadAxis(1)
-
-    if leftY < -0.305
-      moveZ = 0.98
-    else if leftY > 0.305
-      moveZ = -0.98
-
-    if leftX < -0.61
-      moveX = 0.98
-    else if leftX > 0.61
-      moveX = -0.98
 
     if entity.noPhysics
       float speed = 1.0

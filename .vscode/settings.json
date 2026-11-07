@@ -83,8 +83,6 @@
         "void disableCursor()",
         "float getMouseWheel()",
         "int epochTime()",
-        "float getGamepadAxis(int axis)",
-        "bool isGamepadButtonDown(int button)",
         "float getMouseDeltaX()",
         "float getMouseDeltaY()"
     ],

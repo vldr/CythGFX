@@ -34,7 +34,7 @@ class Level
       lightDepths[i] = LEVEL_HEIGHT - 1
 
   void reset()
-    updates = Queue<Int3>()
+    updates.clear()
 
   void tick()
     if game.timer.ticks % 7 == 0

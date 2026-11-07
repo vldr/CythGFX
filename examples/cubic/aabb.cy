@@ -10,17 +10,7 @@ class AABBPosition
   int face
   bool isValid
   bool destructible
-  Vector3 vector
-
-  void __init__()
-    isValid = false
-    destructible = false
-    face = 0
-    index = 0
-    x = 0
-    y = 0
-    z = 0
-    vector = Vector3()
+  Vector3 vector = Vector3()
 
 class AABB
   float x0

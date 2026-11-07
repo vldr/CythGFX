@@ -6,7 +6,7 @@ class HeldBlock
   float height
   float lastHeight
 
-  int swingOffset
+  float swingOffset
   bool isSwinging
 
   void __init__()
@@ -167,7 +167,7 @@ class HeldBlock
     matrix = matrix.translate(Vector3(0.0, radians(tilt), 0.0))
 
     if isSwinging
-      float swingDelta = ((float)swingOffset + game.timer.delta) / 7.0
+      float swingDelta = (swingOffset + game.timer.delta) / 7.0
       float swingRoot = swingDelta.sqrt()
 
       matrix = matrix.translate(Vector3(-sin(swingRoot * PI) * 0.4, sin(swingRoot * PI * 2.0) * 0.2, -sin(swingDelta * PI) * 0.2))
@@ -178,7 +178,7 @@ class HeldBlock
     matrix = matrix.rotate(radians(abs(cos(walk * PI + 0.2) * bob) * 5.0), Vector3(1.0, 0.0, 0.0))
 
     if isSwinging
-      float swingDelta = ((float)swingOffset + game.timer.delta) / 7.0
+      float swingDelta = (swingOffset + game.timer.delta) / 7.0
       float swingRoot = swingDelta.sqrt()
 
       matrix = matrix.rotate(radians(sin(swingRoot * PI) * 80.0), Vector3(0.0, 1.0, 0.0))
@@ -189,4 +189,4 @@ class HeldBlock
 
     vertices.render()
 
-    setUniform(game.modelMatrixUniform, Matrix().data)
+    setUniform(game.modelMatrixUniform, game.identityMatrix.data)
