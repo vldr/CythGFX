@@ -1,28 +1,15 @@
 import "game.cy"
 
 class Skybox
-  VertexList bedrockVertices
+  VertexList bedrockVertices = VertexList()
+  VertexList waterVertices = VertexList()
+  VertexList cloudsVertices = VertexList()
+  VertexList skyVertices = VertexList()
+
   int bedrockTexture
-
-  VertexList waterVertices
   int waterTexture
-
-  VertexList cloudsVertices
   int cloudsTexture
-
-  VertexList skyVertices
   int skyTexture
-
-  void __init__()
-    bedrockVertices = VertexList()
-    waterVertices = VertexList()
-    cloudsVertices = VertexList()
-    skyVertices = VertexList()
-
-    bedrockTexture = 0
-    waterTexture = 0
-    cloudsTexture = 0
-    skyTexture = 0
 
   void init()
     initBedrock()

@@ -9,81 +9,44 @@ float LOCAL_PLAYER_CONTROLLER_DEAD_ZONE = 0.20
 float LOCAL_PLAYER_CONTROLLER_SPEED = 1.85
 
 class LocalPlayer
-  Entity entity
-  Vector2 viewAngles
-  Vector3 viewPosition
-  Vector3 lookAt
-  Vector3 up
+  Entity entity = Entity()
+  Vector2 viewAngles = Vector2()
+  Vector3 viewPosition = Vector3()
+  Vector3 lookAt = Vector3(0.0, 0.0, 1.0)
+  Vector3 up = Vector3(0.0, 1.0, 0.0)
+  AABBPosition selected = AABBPosition()
+  Matrix viewMatrix = matrixIdentity()
+  
+  int[] inventory = [
+    BLOCK_STONE,
+    BLOCK_COBBLE,
+    BLOCK_BRICK,
+    BLOCK_DIRT,
+    BLOCK_WOOD,
+    BLOCK_LOG,
+    BLOCK_LEAVES,
+    BLOCK_GLASS,
+    BLOCK_SLAB,
+  ]
 
-  Matrix viewMatrix
+  float fogRed = 0.87450
+  float fogGreen = 0.93725
+  float fogBlue = 1.0
+  float fogAlpha = 1.0
+  float fogDistance = 1000.0
 
   float tilt
   float oldTilt
   float bobbing
   float oldBobbing
 
-  float fogRed
-  float fogGreen
-  float fogBlue
-  float fogAlpha
-  float fogDistance
-
-  int[] inventory
   int inventoryIndex
-
-  AABBPosition selected
   int selectedIndex
-
   int lastClick
-
+  
   void __init__()
-    entity = Entity()
-    entity.init()
     entity.footSize = 0.5
     entity.heightOffset = 1.62
-
-    viewAngles = Vector2()
-    viewPosition = Vector3()
-    lookAt = Vector3(0.0, 0.0, 1.0)
-    up = Vector3(0.0, 1.0, 0.0)
-    viewMatrix = matrixIdentity()
-
-    tilt = 0.0
-    oldTilt = 0.0
-    bobbing = 0.0
-    oldBobbing = 0.0
-
-    fogRed = 0.87450
-    fogGreen = 0.93725
-    fogBlue = 1.0
-    fogAlpha = 1.0
-    fogDistance = 1000.0
-
-    inventory = [
-      BLOCK_STONE,
-      BLOCK_COBBLE,
-      BLOCK_BRICK,
-      BLOCK_DIRT,
-      BLOCK_WOOD,
-      BLOCK_LOG,
-      BLOCK_LEAVES,
-      BLOCK_GLASS,
-      BLOCK_SLAB
-    ]
-
-    inventoryIndex = 0
-    selected = AABBPosition()
-    selectedIndex = 0
-    lastClick = 0
-
-  Vector3 position()
-    return entity.position
-
-  Vector2 rotation()
-    return entity.rotation
-
-  AABB collisionBox()
-    return entity.aabb
 
   int heldBlockType()
     return inventory[inventoryIndex]

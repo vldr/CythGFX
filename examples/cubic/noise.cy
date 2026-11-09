@@ -4,12 +4,7 @@ class PerlinNoise
   int[] hash
 
   void __init__(Random random)
-    hash = []
-    for int i; i < 256; i++
-      hash.push(0)
-
-    for int i; i < 512; i++
-      hash.push(0)
+    hash.reserve(256 + 512)
 
     for int i; i < 256; i++
       hash[i] = i
@@ -41,9 +36,9 @@ class PerlinNoise
     int iy = (int)vy & 255
     int iz = (int)vz & 255
 
-    vx -= floorTo(vx)
-    vy -= floorTo(vy)
-    vz -= floorTo(vz)
+    vx -= floor(vx)
+    vy -= floor(vy)
+    vz -= floor(vz)
 
     float xd = f(vx)
     float yd = f(vy)

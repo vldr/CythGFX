@@ -5,7 +5,7 @@ int PARTICLES_PER_GROUP = 64
 int VERTICES_PER_PARTICLE = 6
 
 class Particle
-  Entity entity
+  Entity entity  = Entity()
 
   int age
   int maxAge
@@ -26,8 +26,6 @@ class Particle
     float zd,
     int blockType
   )
-    entity = Entity()
-    entity.init()
     entity.setSize(0.2, 0.2)
     entity.setPosition(x, y, z)
     entity.heightOffset = entity.aabbHeight / 2.0
@@ -38,7 +36,6 @@ class Particle
 
     size = 0.1 * (game.random.uniform() * 0.5 + 0.5)
     maxAge = (int)(4.0 / (game.random.uniform() * 0.9 + 0.1))
-    age = 0
 
     float velocityLength = entity.velocity.length()
     if velocityLength > 0.0
@@ -162,13 +159,9 @@ class Particle
 class ParticleGroup
   VertexList vertexList
   Particle[] particles
-  bool active
+  bool active = false
 
-  void __init__()
-    active = false
-    particles = []
-
-  void initialize(
+  void init(
     float x,
     float y,
     float z,
@@ -190,10 +183,7 @@ class ParticleGroup
           float yd = y + ((float)j + 0.5) / 4.0
           float zd = z + ((float)k + 0.5) / 4.0
 
-          int index = (
-            i * PARTICLES_PER_AXIS + j
-          ) * PARTICLES_PER_AXIS + k
-
+          int index = (i * PARTICLES_PER_AXIS + j) * PARTICLES_PER_AXIS + k
           particles[index] = Particle(
             xd,
             yd,
@@ -234,9 +224,6 @@ class ParticleGroup
 class ParticleManager
   ParticleGroup[] groups
 
-  void __init__()
-    groups = []
-
   void tick()
     for ParticleGroup group in groups
       group.tick()
@@ -265,7 +252,7 @@ class ParticleManager
       groups.push(ParticleGroup())
       index = groups.length - 1
 
-    groups[index].initialize(x, y, z, blockType)
+    groups[index].init(x, y, z, blockType)
 
   int activeGroupCount()
     int count = 0

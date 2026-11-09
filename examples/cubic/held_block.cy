@@ -1,23 +1,17 @@
 import "game.cy"
 
 class HeldBlock
-  VertexList vertices
+  VertexList vertices = VertexList()
 
-  float height
-  float lastHeight
+  float height = 1.0
+  float lastHeight = 1.0
 
   float swingOffset
   bool isSwinging
 
   void __init__()
-    vertices = VertexList()
-
-    height = 1.0
-    lastHeight = 1.0
-    swingOffset = 0
-    isSwinging = false
-
     vertices.init(36)
+    
     update()
 
   void emitSprite(Definition definition)

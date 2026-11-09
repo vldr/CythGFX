@@ -123,7 +123,7 @@ float radians(float degrees)
 float degrees(float radians)
   return radians * 180.0 / PI
 
-float floorTo(float x)
+float floor(float x)
   int i = (int)x
   if (float)i > x
     return (float)(i - 1)
@@ -244,7 +244,7 @@ class Matrix
       c1 * xx + c,  c1 * xy + sz, c1 * zx - sy, 0.0,
       c1 * xy - sz, c1 * yy + c,  c1 * yz + sx, 0.0,
       c1 * zx + sy, c1 * yz - sx, c1 * zz + c,  0.0,
-      0.0,           0.0,          0.0,           1.0
+      0.0,          0.0,          0.0,          1.0
     ]
 
     return multiply(Matrix(values))
@@ -294,15 +294,15 @@ Matrix matrixOrtho(
 
 Matrix matrixLookAt(Vector3 eye, Vector3 center, Vector3 up)
   Vector3 forward = (center - eye).normalize()
-  Vector3 side = (forward.cross(up)).normalize()
+  Vector3 side = forward.cross(up).normalize()
   Vector3 cameraUp = side.cross(forward)
 
   float[] result = [
     side.x, cameraUp.x, -forward.x, 0.0,
     side.y, cameraUp.y, -forward.y, 0.0,
     side.z, cameraUp.z, -forward.z, 0.0,
-    -(side.dot(eye)),
-    -(cameraUp.dot(eye)),
+    -side.dot(eye),
+    -cameraUp.dot(eye),
     forward.dot(eye),
     1.0
   ]

@@ -8,25 +8,13 @@ class Level
   char[] blocks
   int[] lightDepths
 
-  int groundLevel
-  int waterLevel
+  int waterLevel = LEVEL_HEIGHT / 2
+  int groundLevel = waterLevel - 2
 
-  Vector3 spawn
-  Queue<Int3> updates
+  Vector3 spawn = Vector3(LEVEL_WIDTH - 1.0, LEVEL_HEIGHT - 1.0, LEVEL_DEPTH - 1.0)
+  Queue<Int3> updates = Queue<Int3>()
 
   void __init__()
-    blocks = []
-    lightDepths = []
-    spawn = Vector3()
-    updates = Queue<Int3>()
-
-    waterLevel = LEVEL_HEIGHT / 2
-    groundLevel = waterLevel - 2
-
-    spawn.x = (float)LEVEL_WIDTH - 1.0
-    spawn.x = (float)LEVEL_HEIGHT - 1.0
-    spawn.x = (float)LEVEL_DEPTH - 1.0
-
     blocks.reserve(LEVEL_WIDTH * LEVEL_HEIGHT * LEVEL_DEPTH)
     lightDepths.reserve(LEVEL_WIDTH * LEVEL_DEPTH)
 

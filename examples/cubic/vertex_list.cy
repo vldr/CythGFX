@@ -8,13 +8,6 @@ class VertexList
   int length
   int index
 
-  void __init__()
-    vao = 0
-    buffer = 0
-    bufferLength = 0
-    length = 0
-    index = 0
-
   void init()
     init(24)
 

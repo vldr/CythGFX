@@ -9,14 +9,6 @@ class Timer
   float tickLength
   float delta
 
-  void __init__()
-    ticks = 0
-    ticksPerSecond = 0.0
-    tickLength = 0.0
-    deltaTicks = 0
-    delta = 0.0
-    lastSystemClock = 0
-
   void init(float ticksPerSecond)
     this.ticksPerSecond = ticksPerSecond
     this.tickLength = 1000.0 / ticksPerSecond

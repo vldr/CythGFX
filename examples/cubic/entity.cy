@@ -1,15 +1,12 @@
 import "game.cy"
 
 class Entity
-  Vector3 position
-  Vector3 oldPosition
-
-  Vector2 rotation
-  Vector2 oldRotation
-
-  Vector3 velocity
-
-  AABB aabb
+  Vector3 position = Vector3()
+  Vector3 oldPosition = Vector3()
+  Vector2 rotation = Vector2()
+  Vector2 oldRotation = Vector2()
+  Vector3 velocity = Vector3()
+  AABB aabb = AABB()
 
   float oldWalkDistance
   float walkDistance
@@ -18,42 +15,14 @@ class Entity
   bool onGround
   bool collision
   bool horizontalCollision
-  bool slide
+  bool slide = true
 
+  float aabbWidth = 0.6
+  float aabbHeight = 1.8
   float heightOffset
-  float aabbWidth
-  float aabbHeight
   float fallDistance
   float slideOffset
   float footSize
-
-  void __init__()
-    position = Vector3()
-    oldPosition = Vector3()
-    rotation = Vector2()
-    oldRotation = Vector2()
-    velocity = Vector3()
-    aabb = AABB()
-
-  void init()
-    onGround = false
-    horizontalCollision = false
-    collision = false
-    slide = true
-    heightOffset = 0.0
-    aabbWidth = 0.6
-    aabbHeight = 1.8
-    oldWalkDistance = 0.0
-    walkDistance = 0.0
-    fallDistance = 0.0
-    slideOffset = 0.0
-    footSize = 0.0
-    noPhysics = false
-    velocity = Vector3()
-    position = Vector3()
-    oldPosition = Vector3()
-    rotation = Vector2()
-    oldRotation = Vector2()
 
   void setSize(float w, float h)
     aabbWidth = w
@@ -96,7 +65,7 @@ class Entity
     float orx = rotation.x
 
     float sum = rotation.x + rx
-    rotation.x = sum - 360.0 * floorTo(sum / 360.0)
+    rotation.x = sum - 360.0 * floor(sum / 360.0)
 
     float turned = rotation.y - ry
     if turned < -89.9

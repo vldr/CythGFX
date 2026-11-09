@@ -7,11 +7,6 @@ class SelectedBlock
   int buffer
   int texture
 
-  void __init__()
-    vao = 0
-    buffer = 0
-    texture = 0
-
   void init()
     texture = game.textureManager.loadColor(0.0, 0.0, 0.0)
 

@@ -1,7 +1,3 @@
-int[] RANDOM_MULTIPLIER = [
-  23, 135, 51, 54, 119, 101, 33, 88
-]
-
 void limbs8FromInt(int[] limbs, int value)
   limbs[0] = value & 0xFF
   limbs[1] = value >> 8 & 0xFF
@@ -84,6 +80,9 @@ class Random
 
   void integer()
     int[] temp = [0, 0, 0, 0, 0, 0, 0, 0]
+    int[] RANDOM_MULTIPLIER = [
+      23, 135, 51, 54, 119, 101, 33, 88
+    ]
 
     limbs8Copy(temp, state)
     limbs8Shr(temp, 12)

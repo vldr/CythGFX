@@ -7,8 +7,8 @@ int CHUNKS_Z = LEVEL_DEPTH / CHUNK_SIZE
 int CHUNK_COUNT = CHUNKS_X * CHUNKS_Y * CHUNKS_Z
 
 class LevelRenderer
-  Frustum frustum
-  Skybox skybox
+  Frustum frustum = Frustum()
+  Skybox skybox = Skybox()
 
   Chunk[] chunks
   Chunk[] chunkQueue
@@ -26,9 +26,6 @@ class LevelRenderer
   float[] lavaTextureAlpha
 
   void __init__()
-    frustum = Frustum()
-    skybox = Skybox()
-
     chunks.reserve(CHUNK_COUNT)
 
     for int x; x < CHUNKS_X; x++

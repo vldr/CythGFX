@@ -16,20 +16,16 @@ float[] waterVerticesData
 waterVerticesData.reserve(1024)
 
 class Chunk
+  VertexList vertices = VertexList()
+  VertexList waterVertices = VertexList()
+
   Int3 position
 
   bool isVisible
   bool isLoaded
 
-  VertexList vertices
-  VertexList waterVertices
-
-  void __init__( int x, int y, int z)
-    vertices = VertexList()
-    waterVertices = VertexList()
+  void __init__(int x, int y, int z)
     position = Int3(x, y, z)
-    isVisible = false
-    isLoaded = false
 
     vertices.init(verticesData)
     waterVertices.init(waterVerticesData)
@@ -62,7 +58,13 @@ class Chunk
         return false
       else if adjacent.draw == DRAW_OPAQUE_SMALL
         return faceType != FACE_TOP
-      else if adjacent.draw == DRAW_TRANSPARENT or adjacent.draw == DRAW_TRANSPARENT_THICK or adjacent.draw == DRAW_TRANSLUCENT or adjacent.draw == DRAW_GAS or adjacent.draw == DRAW_SPRITE
+      else if (
+        adjacent.draw == DRAW_TRANSPARENT or 
+        adjacent.draw == DRAW_TRANSPARENT_THICK or 
+        adjacent.draw == DRAW_TRANSLUCENT or 
+        adjacent.draw == DRAW_GAS or 
+        adjacent.draw == DRAW_SPRITE
+      )
         return true
 
     else if blockDefinition.draw == DRAW_OPAQUE_SMALL
@@ -70,7 +72,13 @@ class Chunk
         return faceType == FACE_TOP
       else if adjacent.draw == DRAW_OPAQUE_SMALL
         return faceType == FACE_TOP or faceType == FACE_BOTTOM
-      else if adjacent.draw == DRAW_TRANSPARENT or adjacent.draw == DRAW_TRANSPARENT_THICK or adjacent.draw == DRAW_TRANSLUCENT or adjacent.draw == DRAW_GAS or adjacent.draw == DRAW_SPRITE
+      else if (
+        adjacent.draw == DRAW_TRANSPARENT or 
+        adjacent.draw == DRAW_TRANSPARENT_THICK or 
+        adjacent.draw == DRAW_TRANSLUCENT or
+        adjacent.draw == DRAW_GAS or 
+        adjacent.draw == DRAW_SPRITE
+      )
         return true
 
     else if blockDefinition.draw == DRAW_TRANSPARENT_THICK
@@ -98,7 +106,10 @@ class Chunk
             Definition top = blockDefinitions[topType]
             Definition bottom = blockDefinitions[bottomType]
 
-            if bottomType != topType and bottom.draw != DRAW_OPAQUE and top.draw != DRAW_OPAQUE and top.draw != DRAW_OPAQUE_SMALL
+            if (bottomType != topType and 
+                bottom.draw != DRAW_OPAQUE and 
+                top.draw != DRAW_OPAQUE and 
+                top.draw != DRAW_OPAQUE_SMALL)
               return true
 
         return false
