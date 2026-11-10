@@ -15,6 +15,5 @@ add_subdirectory(third_party/cyth)
 
 add_executable(cythgfx ${SOURCES})
 
-target_include_directories(cythgfx PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib/src/external)
 target_link_libraries(cythgfx PRIVATE raylib)
 target_link_libraries(cythgfx PRIVATE libcyth)

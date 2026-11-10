@@ -103,7 +103,6 @@ class LevelRenderer
     int updates = 0
     while updates < MAX_CHUNK_UPDATES and chunkQueue
       Chunk chunk = chunkQueue.pop()
-      chunk.isLoaded = true
       chunk.update()
 
       updates++

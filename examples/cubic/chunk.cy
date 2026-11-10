@@ -168,161 +168,159 @@ class Chunk
 
     return 0.0
 
-  void emitTop(VertexList list, int x, int y, int z, Definition definition, float height, float brightness, bool mirror)
+  void emitTop(VertexList list, float x, float y, float z, Definition definition, float height, float brightness, bool mirror)
     float u = 0.0625 * (float)(definition.topTexture % 16)
     float v = 0.0625 * (float)(definition.topTexture / 16)
     float u2 = u + 0.0625
     float v2 = v + 0.0625
-    float fy = (float)y + height
+    float fy = y + height
 
-    list.push((float)x, fy, (float)z, u, v, brightness)
-    list.push((float)x, fy, (float)z + 1.0, u, v2, brightness)
-    list.push((float)x + 1.0, fy, (float)z + 1.0, u2, v2, brightness)
+    list.push(x, fy, z, u, v, brightness)
+    list.push(x, fy, z + 1.0, u, v2, brightness)
+    list.push(x + 1.0, fy, z + 1.0, u2, v2, brightness)
 
-    list.push((float)x, fy, (float)z, u, v, brightness)
-    list.push((float)x + 1.0, fy, (float)z + 1.0, u2, v2, brightness)
-    list.push((float)x + 1.0, fy, (float)z, u2, v, brightness)
+    list.push(x, fy, z, u, v, brightness)
+    list.push(x + 1.0, fy, z + 1.0, u2, v2, brightness)
+    list.push(x + 1.0, fy, z, u2, v, brightness)
 
     if mirror
-      list.push((float)x, fy, (float)z + 1.0, u, v, brightness)
-      list.push((float)x, fy, (float)z, u, v2, brightness)
-      list.push((float)x + 1.0, fy, (float)z, u2, v2, brightness)
+      list.push(x, fy, z + 1.0, u, v, brightness)
+      list.push(x, fy, z, u, v2, brightness)
+      list.push(x + 1.0, fy, z, u2, v2, brightness)
 
-      list.push((float)x, fy, (float)z + 1.0, u, v, brightness)
-      list.push((float)x + 1.0, fy, (float)z, u2, v2, brightness)
-      list.push((float)x + 1.0, fy, (float)z + 1.0, u2, v, brightness)
+      list.push(x, fy, z + 1.0, u, v, brightness)
+      list.push(x + 1.0, fy, z, u2, v2, brightness)
+      list.push(x + 1.0, fy, z + 1.0, u2, v, brightness)
 
-  void emitBottom(VertexList list, int x, int y, int z, Definition definition, float brightness, bool mirror)
+  void emitBottom(VertexList list, float x, float y, float z, Definition definition, float brightness, bool mirror)
     float u = 0.0625 * (float)(definition.bottomTexture % 16)
     float v = 0.0625 * (float)(definition.bottomTexture / 16)
     float u2 = u + 0.0625
     float v2 = v + 0.0625
     float shade = brightness * 0.5
 
-    list.push((float)x, (float)y, (float)z + 1.0, u, v, shade)
-    list.push((float)x, (float)y, (float)z, u, v2, shade)
-    list.push((float)x + 1.0, (float)y, (float)z, u2, v2, shade)
+    list.push(x, y, z + 1.0, u, v, shade)
+    list.push(x, y, z, u, v2, shade)
+    list.push(x + 1.0, y, z, u2, v2, shade)
 
-    list.push((float)x, (float)y, (float)z + 1.0, u, v, shade)
-    list.push((float)x + 1.0, (float)y, (float)z, u2, v2, shade)
-    list.push((float)x + 1.0, (float)y, (float)z + 1.0, u2, v, shade)
+    list.push(x, y, z + 1.0, u, v, shade)
+    list.push(x + 1.0, y, z, u2, v2, shade)
+    list.push(x + 1.0, y, z + 1.0, u2, v, shade)
 
     if mirror
-      list.push((float)x, (float)y, (float)z, u, v, brightness)
-      list.push((float)x, (float)y, (float)z + 1.0, u, v2, brightness)
-      list.push((float)x + 1.0, (float)y, (float)z + 1.0, u2, v2, brightness)
+      list.push(x, y, z, u, v, brightness)
+      list.push(x, y, z + 1.0, u, v2, brightness)
+      list.push(x + 1.0, y, z + 1.0, u2, v2, brightness)
 
-      list.push((float)x, (float)y, (float)z, u, v, brightness)
-      list.push((float)x + 1.0, (float)y, (float)z + 1.0, u2, v2, brightness)
-      list.push((float)x + 1.0, (float)y, (float)z, u2, v, brightness)
+      list.push(x, y, z, u, v, brightness)
+      list.push(x + 1.0, y, z + 1.0, u2, v2, brightness)
+      list.push(x + 1.0, y, z, u2, v, brightness)
 
-  void emitFrontBack(VertexList list, int faceType, int x, int y, int z, Definition definition, float height, float shift, float brightness, bool mirror)
+  void emitFrontBack(VertexList list, int faceType, float x, float y, float z, Definition definition, float height, float shift, float brightness, bool mirror)
     float u = 0.0625 * (float)(definition.sideTexture % 16)
     float v = 0.0625 * (float)(definition.sideTexture / 16)
     float u2 = u + 0.0625
     float v2 = v + height * 0.0625
     float shade = brightness * 0.8
-    float low = (float)y + shift
-    float high = (float)y + height
+    float low = y + shift
+    float high = y + height
 
     if faceType == FACE_FRONT
-      float pz = (float)z + 1.0
+      float pz = z + 1.0
 
-      list.push((float)x, high, pz, u, v, shade)
-      list.push((float)x, low, pz, u, v2, shade)
-      list.push((float)x + 1.0, low, pz, u2, v2, shade)
+      list.push(x, high, pz, u, v, shade)
+      list.push(x, low, pz, u, v2, shade)
+      list.push(x + 1.0, low, pz, u2, v2, shade)
 
-      list.push((float)x, high, pz, u, v, shade)
-      list.push((float)x + 1.0, low, pz, u2, v2, shade)
-      list.push((float)x + 1.0, high, pz, u2, v, shade)
+      list.push(x, high, pz, u, v, shade)
+      list.push(x + 1.0, low, pz, u2, v2, shade)
+      list.push(x + 1.0, high, pz, u2, v, shade)
 
       if mirror
-        list.push((float)x + 1.0, high, pz, u, v, shade)
-        list.push((float)x + 1.0, low, pz, u, v2, shade)
-        list.push((float)x, low, pz, u2, v2, shade)
+        list.push(x + 1.0, high, pz, u, v, shade)
+        list.push(x + 1.0, low, pz, u, v2, shade)
+        list.push(x, low, pz, u2, v2, shade)
 
-        list.push((float)x + 1.0, high, pz, u, v, shade)
-        list.push((float)x, low, pz, u2, v2, shade)
-        list.push((float)x, high, pz, u2, v, shade)
+        list.push(x + 1.0, high, pz, u, v, shade)
+        list.push(x, low, pz, u2, v2, shade)
+        list.push(x, high, pz, u2, v, shade)
     else
-      float pz = (float)z
+      float pz = z
 
-      list.push((float)x + 1.0, high, pz, u, v, shade)
-      list.push((float)x + 1.0, low, pz, u, v2, shade)
-      list.push((float)x, low, pz, u2, v2, shade)
+      list.push(x + 1.0, high, pz, u, v, shade)
+      list.push(x + 1.0, low, pz, u, v2, shade)
+      list.push(x, low, pz, u2, v2, shade)
 
-      list.push((float)x + 1.0, high, pz, u, v, shade)
-      list.push((float)x, low, pz, u2, v2, shade)
-      list.push((float)x, high, pz, u2, v, shade)
+      list.push(x + 1.0, high, pz, u, v, shade)
+      list.push(x, low, pz, u2, v2, shade)
+      list.push(x, high, pz, u2, v, shade)
 
       if mirror
-        list.push((float)x, high, pz, u, v, shade)
-        list.push((float)x, low, pz, u, v2, shade)
-        list.push((float)x + 1.0, low, pz, u2, v2, shade)
+        list.push(x, high, pz, u, v, shade)
+        list.push(x, low, pz, u, v2, shade)
+        list.push(x + 1.0, low, pz, u2, v2, shade)
 
-        list.push((float)x, high, pz, u, v, shade)
-        list.push((float)x + 1.0, low, pz, u2, v2, shade)
-        list.push((float)x + 1.0, high, pz, u2, v, shade)
+        list.push(x, high, pz, u, v, shade)
+        list.push(x + 1.0, low, pz, u2, v2, shade)
+        list.push(x + 1.0, high, pz, u2, v, shade)
 
-  void emitLeftRight(VertexList list, int faceType, int x, int y, int z, Definition definition, float height, float shift, float brightness, bool mirror)
+  void emitLeftRight(VertexList list, int faceType, float x, float y, float z, Definition definition, float height, float shift, float brightness, bool mirror)
     float u = 0.0625 * (float)(definition.sideTexture % 16)
     float v = 0.0625 * (float)(definition.sideTexture / 16)
     float u2 = u + 0.0625
     float v2 = v + height * 0.0625
     float shade = brightness * 0.6
-    float low = (float)y + shift
-    float high = (float)y + height
+    float low = y + shift
+    float high = y + height
 
     if faceType == FACE_RIGHT
-      float px = (float)x + 1.0
+      float px = x + 1.0
 
-      list.push(px, high, (float)z + 1.0, u, v, shade)
-      list.push(px, low, (float)z + 1.0, u, v2, shade)
-      list.push(px, low, (float)z, u2, v2, shade)
+      list.push(px, high, z + 1.0, u, v, shade)
+      list.push(px, low, z + 1.0, u, v2, shade)
+      list.push(px, low, z, u2, v2, shade)
 
-      list.push(px, high, (float)z + 1.0, u, v, shade)
-      list.push(px, low, (float)z, u2, v2, shade)
-      list.push(px, high, (float)z, u2, v, shade)
+      list.push(px, high, z + 1.0, u, v, shade)
+      list.push(px, low, z, u2, v2, shade)
+      list.push(px, high, z, u2, v, shade)
 
       if mirror
-        list.push(px, high, (float)z, u, v, shade)
-        list.push(px, low, (float)z, u, v2, shade)
-        list.push(px, low, (float)z + 1.0, u2, v2, shade)
+        list.push(px, high, z, u, v, shade)
+        list.push(px, low, z, u, v2, shade)
+        list.push(px, low, z + 1.0, u2, v2, shade)
 
-        list.push(px, high, (float)z, u, v, shade)
-        list.push(px, low, (float)z + 1.0, u2, v2, shade)
-        list.push(px, high, (float)z + 1.0, u2, v, shade)
+        list.push(px, high, z, u, v, shade)
+        list.push(px, low, z + 1.0, u2, v2, shade)
+        list.push(px, high, z + 1.0, u2, v, shade)
     else
-      float px = (float)x
+      list.push(x, high, z, u, v, shade)
+      list.push(x, low, z, u, v2, shade)
+      list.push(x, low, z + 1.0, u2, v2, shade)
 
-      list.push(px, high, (float)z, u, v, shade)
-      list.push(px, low, (float)z, u, v2, shade)
-      list.push(px, low, (float)z + 1.0, u2, v2, shade)
-
-      list.push(px, high, (float)z, u, v, shade)
-      list.push(px, low, (float)z + 1.0, u2, v2, shade)
-      list.push(px, high, (float)z + 1.0, u2, v, shade)
+      list.push(x, high, z, u, v, shade)
+      list.push(x, low, z + 1.0, u2, v2, shade)
+      list.push(x, high, z + 1.0, u2, v, shade)
 
       if mirror
-        list.push(px, high, (float)z + 1.0, u, v, shade)
-        list.push(px, low, (float)z + 1.0, u, v2, shade)
-        list.push(px, low, (float)z, u2, v2, shade)
+        list.push(x, high, z + 1.0, u, v, shade)
+        list.push(x, low, z + 1.0, u, v2, shade)
+        list.push(x, low, z, u2, v2, shade)
 
-        list.push(px, high, (float)z + 1.0, u, v, shade)
-        list.push(px, low, (float)z, u2, v2, shade)
-        list.push(px, high, (float)z, u2, v, shade)
+        list.push(x, high, z + 1.0, u, v, shade)
+        list.push(x, low, z, u2, v2, shade)
+        list.push(x, high, z, u2, v, shade)
 
-  void emitSprite(int x, int y, int z, Definition definition)
+  void emitSprite(float x, float y, float z, Definition definition)
     float u = 0.0625 * (float)(definition.sideTexture % 16)
     float v = 0.0625 * (float)(definition.sideTexture / 16) + 0.0625 - 0.0625 * definition.height
     float u2 = u + 0.0625
     float v2 = v + 0.0625
 
-    float x0 = (float)x
+    float x0 = x
     float x1 = x0 + 1.0
-    float y0 = (float)y
+    float y0 = y
     float y1 = y0 + 1.0
-    float z0 = (float)z
+    float z0 = z
     float z1 = z0 + 1.0
 
     vertices.push(x0, y1, z0, u, v, 1.0)
@@ -364,13 +362,13 @@ class Chunk
     VertexList list = game.level.isWaterTile(blockType) ? waterVertices : vertices
 
     if faceType == FACE_TOP
-      emitTop(list, x, y, z, definition, height, brightness, mirror)
+      emitTop(list, (float)x, (float)y, (float)z, definition, height, brightness, mirror)
     else if faceType == FACE_BOTTOM
-      emitBottom(list, x, y, z, definition, brightness, mirror)
+      emitBottom(list, (float)x, (float)y, (float)z, definition, brightness, mirror)
     else if faceType == FACE_FRONT or faceType == FACE_BACK
-      emitFrontBack(list, faceType, x, y, z, definition, height, shift, brightness, mirror)
+      emitFrontBack(list, faceType, (float)x, (float)y, (float)z, definition, height, shift, brightness, mirror)
     else
-      emitLeftRight(list, faceType, x, y, z, definition, height, shift, brightness, mirror)
+      emitLeftRight(list, faceType, (float)x, (float)y, (float)z, definition, height, shift, brightness, mirror)
 
   void update()
     vertices.reset()
@@ -384,7 +382,7 @@ class Chunk
             Definition definition = blockDefinitions[blockType]
 
             if definition.draw == DRAW_SPRITE
-              emitSprite(x, y, z, definition)
+              emitSprite((float)x, (float)y, (float)z, definition)
             else
               for int faceType; faceType < 6; faceType++
                 if shouldRenderFace(faceType, x, y, z)

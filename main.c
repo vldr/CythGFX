@@ -5,7 +5,7 @@
 #include <cyth.h>
 #include <string.h>
 #include <time.h>
-#include <glad.h>
+#include <external/glad.h>
 #include <raylib.h>
 #include <rlgl.h>
 
