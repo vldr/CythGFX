@@ -3,14 +3,14 @@ import "game.cy"
 class PerlinNoise
   int[] hash
 
-  void __init__(Random random)
+  void __init__()
     hash.reserve(256 + 512)
 
     for int i; i < 256; i++
       hash[i] = i
 
     for int i; i < 256; i++
-      int r1 = random.integerRange(0, 256 - i - 1) + i
+      int r1 = game.random.integerRange(0, 256 - i - 1) + i
       int r2 = hash[i]
       hash[i] = hash[r1]
       hash[r1] = r2
@@ -63,12 +63,12 @@ class OctaveNoise
   int octaveCount
   PerlinNoise[] noises
 
-  void __init__(Random random, int octaveCount)
+  void __init__(int octaveCount)
     noises = []
     this.octaveCount = octaveCount
 
     for int i; i < octaveCount; i++
-      noises.push(PerlinNoise(random))
+      noises.push(PerlinNoise())
 
   float compute(float x, float y)
     float a = 0.0

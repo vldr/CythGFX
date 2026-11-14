@@ -7,7 +7,7 @@ endif()
 project(cythgfx)
 
 set(SOURCES
-    main.c
+    src/main.c
 )
 
 add_subdirectory(third_party/raylib)

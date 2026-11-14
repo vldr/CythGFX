@@ -14,19 +14,16 @@ int GENERATOR_DESTROY = 10
 int GENERATOR_FINISHED = 11
 
 class LevelGenerator
-  CombinedNoise noise1
-  CombinedNoise noise2
-  OctaveNoise noise3
+  CombinedNoise noise1 = CombinedNoise(OctaveNoise(8), OctaveNoise(8))
+  CombinedNoise noise2 = CombinedNoise(OctaveNoise(8), OctaveNoise(8))
+  OctaveNoise noise3 = OctaveNoise(6)
   int[] heights
   int state
 
   void __init__()
-    noise1 = CombinedNoise(OctaveNoise(game.random, 8), OctaveNoise(game.random, 8))
-    noise2 = CombinedNoise(OctaveNoise(game.random, 8), OctaveNoise(game.random, 8))
-    noise3 = OctaveNoise(game.random, 6)
-
     heights.reserve(LEVEL_WIDTH * LEVEL_DEPTH)
-    state = GENERATOR_INIT
+
+    init()
 
   void init()
     state = GENERATOR_INIT
