@@ -14,8 +14,8 @@ class Tetris
 
   Color[] board
 
-  any currentPiece
-  any nextPiece
+  Piece currentPiece
+  Piece nextPiece
 
   int pieceX
   int pieceY
@@ -239,7 +239,7 @@ class Tetris
       pieceX++
       rotation = newRotation
 
-  bool canPlace(any piece, int positionX, int positionY, int pieceRotation)
+  bool canPlace(Piece piece, int positionX, int positionY, int pieceRotation)
     for int y = 0; y < 4; y++
       for int x = 0; x < 4; x++
         if cell(piece, pieceRotation, x, y)
@@ -318,7 +318,7 @@ class Tetris
     if not canPlace(currentPiece, pieceX, pieceY, rotation)
       gameOver = true
 
-  any randomPiece()
+  Piece randomPiece()
     int kind = getRandomValue(0, 6)
 
     if kind == 0
@@ -333,10 +333,10 @@ class Tetris
       return LPiece()
     else if kind == 5
       return SPiece()
+    else
+      return ZPiece()
 
-    return ZPiece()
-
-  Color pieceColor(any piece)
+  Color pieceColor(Piece piece)
     match piece
       case IPiece
         return piece.color
@@ -352,10 +352,10 @@ class Tetris
         return piece.color
       case ZPiece
         return piece.color
-      default
-        return null
 
-  bool cell(any piece, int pieceRotation, int x, int y)
+    return null
+
+  bool cell(Piece piece, int pieceRotation, int x, int y)
     match piece
       case IPiece
         return piece.cell(pieceRotation, x, y)
@@ -371,8 +371,8 @@ class Tetris
         return piece.cell(pieceRotation, x, y)
       case ZPiece
         return piece.cell(pieceRotation, x, y)
-      default
-        return false
+    
+    return false
 
   void setPieceColor(Color color)
     fill(color.r, color.g, color.b)
@@ -386,6 +386,8 @@ class Color
     this.r = r
     this.g = g
     this.b = b
+
+any Piece = IPiece | OPiece | TPiece | JPiece | LPiece | SPiece | ZPiece 
 
 class IPiece
   Color color = Color(70, 220, 235)
